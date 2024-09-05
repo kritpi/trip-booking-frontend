@@ -1,11 +1,11 @@
-import { Button } from "@nextui-org/button";
+"use client";
+
 export default function Home() {
+
   return (
     <main>
-      <div>Hello World!</div>
-      <Button>
-      สวัสดีครับ
-      </Button>
+      <div className="text-lg">Hello World!</div>
+      
     </main>
   );
 }

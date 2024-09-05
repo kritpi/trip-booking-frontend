@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { Noto_Sans_Thai } from "next/font/google";
-import { NextUIProvider } from "@nextui-org/react";
+import { Providers } from "../lib/providers";
 import "./globals.css";
 
 const notoSanThai = Noto_Sans_Thai({
@@ -23,11 +23,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={notoSanThai.className}>
-        <NextUIProvider>
+        <Providers>
           <div className="px-[33px] sm:px-[56px] md:px-[100px] py-[5.8rem]">
             {children}
           </div>
-        </NextUIProvider>
+        </Providers>
       </body>
     </html>
   );
