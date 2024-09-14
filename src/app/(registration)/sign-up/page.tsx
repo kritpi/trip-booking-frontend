@@ -34,20 +34,21 @@ import {
 // sign-up validation schema
 const signUpSchema = z
   .object({
-    username: z.string().min(1, "Username cannot be blank"),
-    name: z.string(),
-    lastName: z.string(),
+    username: z.string().trim().min(1, "*Username cannot be blank"),
+    name: z.string().trim().min(1, "*Name cannot be blank"),
+    lastName: z.string().trim().min(1, "*Last name cannot be blank"),
     gender: z.enum(["Male", "Female", "Etc."]),
-    email: z.string().email("Wrong email format"),
+    email: z.string().trim().email("*Wrong email format"),
     phoneNumber: z
       .string()
-      .min(10, "Phone number must be at least 10 characters"),
-    birthDate: z.date({ required_error: "A date of birth is required" }),
-    password: z.string().min(8, "Password must be at least 8 characters"),
+      .trim()
+      .min(10, "*Phone number must be at least 10 characters"),
+    birthDate: z.date({ required_error: "*A date of birth is required" }),
+    password: z.string().min(8, "*Password must be at least 8 characters"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords must match",
+    message: "*Passwords must match",
     path: ["confirmPassword"],
   });
 
@@ -70,6 +71,7 @@ export default function SignUp() {
 
   const onSignUpSubmit = async (data: TSignUpSchema) => {
     console.log(JSON.stringify(data));
+    //backend connection
   };
 
   return (
@@ -86,11 +88,11 @@ export default function SignUp() {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2">Name</FormLabel>
+                  <FormLabel className="pl-2 text-base">Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Name" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -99,11 +101,11 @@ export default function SignUp() {
               name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2">Last Name</FormLabel>
+                  <FormLabel className="pl-2 text-base">Last Name</FormLabel>
                   <FormControl>
                     <Input placeholder="Last Name" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="pl-2"/>
                 </FormItem>
               )}
             />
@@ -112,7 +114,7 @@ export default function SignUp() {
               name="gender"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2">Gender</FormLabel>
+                  <FormLabel className="pl-2 text-base">Gender</FormLabel>
                   <Select
                     onValueChange={field.onChange}
                     defaultValue={field.value}
@@ -128,7 +130,7 @@ export default function SignUp() {
                       <SelectItem value="Etc.">Etc.</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage />
+                  <FormMessage className="pl-2"/>
                 </FormItem>
               )}
             />
@@ -137,11 +139,11 @@ export default function SignUp() {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2">Email</FormLabel>
+                  <FormLabel className="pl-2 text-base">Email</FormLabel>
                   <FormControl>
                     <Input type="email" placeholder="Email" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="pl-2"/>
                 </FormItem>
               )}
             />
@@ -150,11 +152,11 @@ export default function SignUp() {
               name="phoneNumber"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2">Phone Number</FormLabel>
+                  <FormLabel className="pl-2 text-base">Phone Number</FormLabel>
                   <FormControl>
                     <Input placeholder="Phone Number" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="pl-2"/>
                 </FormItem>
               )}
             />
@@ -163,7 +165,7 @@ export default function SignUp() {
               name="birthDate"
               render={({ field }) => (
                 <FormItem className="">
-                  <FormLabel className="pl-2">Birth Date</FormLabel>
+                  <FormLabel className="pl-2 text-base">Birth Date</FormLabel>
                   <Popover>
                     <PopoverTrigger asChild>
                       <FormControl>
@@ -195,7 +197,7 @@ export default function SignUp() {
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage />
+                  <FormMessage className="pl-2"/>
                 </FormItem>
               )}
             />
@@ -204,11 +206,11 @@ export default function SignUp() {
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2">Username</FormLabel>
+                  <FormLabel className="pl-2 text-base">Username</FormLabel>
                   <FormControl>
                     <Input placeholder="Username" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="pl-2"/>
                 </FormItem>
               )}
             />
@@ -217,11 +219,11 @@ export default function SignUp() {
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2">Password</FormLabel>
+                  <FormLabel className="pl-2 text-base">Password</FormLabel>
                   <FormControl>
                     <Input type="password" placeholder="Password" {...field} />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="pl-2"/>
                 </FormItem>
               )}
             />
@@ -230,7 +232,7 @@ export default function SignUp() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2">Confirm Password</FormLabel>
+                  <FormLabel className="pl-2 text-base">Confirm Password</FormLabel>
                   <FormControl>
                     <Input
                       type="password"
@@ -238,12 +240,12 @@ export default function SignUp() {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="pl-2"/>
                 </FormItem>
               )}
             />
             <div>
-            <FormLabel className="pl-2">Confirm Creating Your New Account?</FormLabel>
+            <FormLabel className="pl-2 text-base">Confirm Creating Your New Account?</FormLabel>
               <div className="grid grid-cols-2 gap-3">
                 <Button type="submit" disabled={form.formState.isSubmitting} className="mt-2">
                   Create Account
