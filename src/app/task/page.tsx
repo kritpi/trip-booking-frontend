@@ -64,7 +64,7 @@ export default function page() {
   return (
     <div>
       <Table>
-        <TableCaption>List of Tasks</TableCaption>
+        <TableCaption className=" text-cyan-700">List of Tasks</TableCaption>
         <TableHeader>
           <TableRow>
             <TableHead>ID</TableHead>

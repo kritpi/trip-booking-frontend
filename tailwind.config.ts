@@ -10,7 +10,7 @@ const config: Config = {
   ],
   theme: {
   	container: {
-  		center: 'true',
+  		center: true,
   		padding: '2rem'
   	},
   	fontSize: {
