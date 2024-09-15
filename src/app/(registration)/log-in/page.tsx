@@ -19,12 +19,12 @@ import Link from "next/link"
 //log-in validation
 const logInSchema = z
   .object({
-    username: z.string().min(1, "Username cannot be blank"),
+    email: z.string().email("Email cannot be blank"),
     password: z.string().min(8, "Password cannot be blank"),
   })
   .refine(
     (data) =>
-      data.password === data.password && data.username === data.username,
+      data.password === data.password && data.email === data.email,
     {
       message: "Username or password is incorrect",
     }
@@ -35,7 +35,7 @@ export default function LogIn() {
   const form = useForm<TLogInSchema>({
     resolver: zodResolver(logInSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
     },
   });
@@ -53,14 +53,14 @@ export default function LogIn() {
           <div className="grid grid-rows-3 gap-6">
             <FormField
               control={form.control}
-              name="username"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2 text-base">Username</FormLabel>
+                  <FormLabel className="pl-2 text-base">Email</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Username"
+                      placeholder="Email"
                       className="w-[300px]"
                     />
                   </FormControl>
