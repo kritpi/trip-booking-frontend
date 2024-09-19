@@ -4,6 +4,8 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -12,19 +14,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator"
-import Link from "next/link"
-
+import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+import { loginUser } from "@/api/user";
 
 //log-in validation
 const logInSchema = z
   .object({
-    email: z.string().email("Email cannot be blank"),
-    password: z.string().min(8, "Password cannot be blank"),
+    email: z.string().email("Incorrect email"),
+    password: z.string().min(8, "Incorect password"),
   })
   .refine(
-    (data) =>
-      data.password === data.password && data.email === data.email,
+    (data) => data.password === data.password && data.email === data.email,
     {
       message: "Username or password is incorrect",
     }
@@ -37,13 +38,52 @@ export default function LogIn() {
     defaultValues: {
       email: "",
       password: "",
-    },
+    }, //todo: reset the form
   });
 
+  const router = useRouter();
+
+  // const onLogInSubmit = async (data: TLogInSchema) => {
+  //   await loginUser(data.email, data.password);
+  //   await signIn("credentials", {
+  //     email: data.email,
+  //     password: data.password,
+  //     redirect: false,
+  //   })
+  //     .then((res) => {
+  //       if (res?.ok === true) {
+  //         router.replace("/");
+  //       } else {
+  //         console.log("Cannot log in");
+  //         form.reset({ ...form.getValues(), password: '' })
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       console.log(error);
+  //     });
+  //   console.log(JSON.stringify(data));
+  //   //backend connection
+  // };
+
   const onLogInSubmit = async (data: TLogInSchema) => {
-    console.log(JSON.stringify(data));
-    //backend connection
-  };
+    await signIn('credentials', {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    }).then((res) => {
+      if (res?.ok === true) {
+        router.replace('/')
+        console.log("Successfully logged in");
+        
+      } else {
+        console.log('Cannot log in');
+        form.reset({ ...form.getValues(), password: '' })
+      }
+    }).catch(() => {
+      console.log("Login failed");
+      
+    })
+  }
 
   return (
     <div className="max-w-2xl mx-auto p-6">
@@ -64,7 +104,7 @@ export default function LogIn() {
                       className="w-[300px]"
                     />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -82,11 +122,13 @@ export default function LogIn() {
                       className="w-[300px]"
                     />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-[300px]">Log In</Button>
+            <Button type="submit" className="w-[300px]">
+              Log In
+            </Button>
           </div>
         </form>
       </Form>
@@ -94,7 +136,9 @@ export default function LogIn() {
       <div className="mt-3">
         <span>Doesn't have an account yet? | </span>
         <span>
-          <Link href={"sign-up"} className="hover: underline">Sign Up</Link>
+          <Link href={"signup"} className="hover: underline">
+            Sign Up
+          </Link>
         </span>
       </div>
     </div>

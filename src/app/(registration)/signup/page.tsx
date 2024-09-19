@@ -2,8 +2,14 @@
 
 import { z } from "zod";
 import { useForm } from "react-hook-form";
-import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { redirect, useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { createUser } from "@/api/user";
+import UserRegister from "@/interface/userRegister";
+import { UserGender } from "@/enum/UserGender";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -37,14 +43,14 @@ const signUpSchema = z
     username: z.string().trim().min(1, "*Username cannot be blank"),
     name: z.string().trim().min(1, "*Name cannot be blank"),
     lastName: z.string().trim().min(1, "*Last name cannot be blank"),
-    gender: z.enum(["Male", "Female", "Etc."]),
+    gender: z.enum(Object.values(UserGender) as [string, ...string[]]),
     email: z.string().trim().email("*Wrong email format"),
     phoneNumber: z
       .string()
       .trim()
       .min(10, "*Phone number must be at least 10 characters"),
     birthDate: z.date({ required_error: "*A date of birth is required" }),
-    password: z.string().min(8, "*Password must be at least 8 characters"),
+    password: z.string().min(1, "*Password cannot be blank"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
@@ -69,9 +75,23 @@ export default function SignUp() {
     },
   });
 
-  const onSignUpSubmit = async (data: TSignUpSchema) => {
-    console.log(JSON.stringify(data));
-    //backend connection
+  const router = useRouter();
+  const onRegisterSubmit = async (data: TSignUpSchema) => {
+    
+    const newUser: UserRegister = {
+      name: data.name,
+      lastName: data.lastName,
+      gender: data.gender as UserGender,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      birthDate: data.birthDate,
+      username: data.username,
+      password: data.password,
+    };
+    console.log(newUser);
+    createUser(newUser);
+    form.reset();
+    router.replace("/login");
   };
 
   return (
@@ -79,7 +99,7 @@ export default function SignUp() {
       <h1 className="text-3xl font-bold mb-6">Sign Up</h1>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSignUpSubmit)}
+          onSubmit={form.handleSubmit(onRegisterSubmit)}
           className="space-y-6"
         >
           <div className="grid grid-cols-2 gap-6">
@@ -105,7 +125,7 @@ export default function SignUp() {
                   <FormControl>
                     <Input placeholder="Last Name" {...field} />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -127,10 +147,10 @@ export default function SignUp() {
                     <SelectContent>
                       <SelectItem value="Male">Male</SelectItem>
                       <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Etc.">Etc.</SelectItem>
+                      <SelectItem value="Etc">Etc.</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -143,7 +163,7 @@ export default function SignUp() {
                   <FormControl>
                     <Input type="email" placeholder="Email" {...field} />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -156,7 +176,7 @@ export default function SignUp() {
                   <FormControl>
                     <Input placeholder="Phone Number" {...field} />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -197,7 +217,7 @@ export default function SignUp() {
                       />
                     </PopoverContent>
                   </Popover>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -210,7 +230,7 @@ export default function SignUp() {
                   <FormControl>
                     <Input placeholder="Username" {...field} />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -223,7 +243,7 @@ export default function SignUp() {
                   <FormControl>
                     <Input type="password" placeholder="Password" {...field} />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -232,7 +252,9 @@ export default function SignUp() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2 text-base">Confirm Password</FormLabel>
+                  <FormLabel className="pl-2 text-base">
+                    Confirm Password
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="password"
@@ -240,19 +262,24 @@ export default function SignUp() {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
             <div>
-            <FormLabel className="pl-2 text-base">Confirm Creating Your New Account?</FormLabel>
+              <FormLabel className="pl-2 text-base">
+                Confirm Creating Your New Account?
+              </FormLabel>
               <div className="grid grid-cols-2 gap-3">
-                <Button type="submit" disabled={form.formState.isSubmitting} className="mt-2">
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  className="mt-2"
+                >
                   Create Account
                 </Button>
                 <Button asChild variant={"outline"} className="mt-2">
-                  <Link href={"/"}>Cancle</Link>
-                  
+                  <Link href={"/login"}>Cancle</Link>
                 </Button>
               </div>
             </div>

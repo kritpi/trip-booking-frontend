@@ -17,8 +17,14 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useState } from "react";
 import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
 
 export const Navbar = () => {
+  
+  const { data: session, status } = useSession();
+  console.log(session?.user?.name);
+  
+  
   return (
     <nav className=" bg-white border-gray-200 ">
       <div className=" max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -32,7 +38,7 @@ export const Navbar = () => {
                 variant="link"
                 className=" text-[20px] active:outline-none"
               >
-                Profile
+                {session?.user?.name || "My Account //ยังติดเรื่อง session ที่เอาชื่อ user ที่ login แล้วมา Show ไม่ได้"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
@@ -42,7 +48,7 @@ export const Navbar = () => {
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem>
-                  <Link href={"/log-in"}>
+                  <Link href={"/login"}>
                     <span className="text-[15px]">Login / Sign-Up</span>
                   </Link>
                 </DropdownMenuItem>
@@ -55,6 +61,18 @@ export const Navbar = () => {
                   <Link href={"#"}>
                     <span className="text-[15px]">View Your Trip</span>
                   </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
+                  <a onClick={async () => {
+                    await signOut({ callbackUrl: "/"})
+                  }}>
+                    <span className="text-[15px] text-red-600">Log Out</span>
+                  </a>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
             </DropdownMenuContent>

@@ -5,20 +5,31 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 
 import { Button } from "@/components/ui/button";
-
+import { UserGender } from "@/enum/UserGender";
+import UserRegister from "@/interface/userRegister";
+import { createUser } from "@/api/user";
 //sign-uo validation
 const signUpSchema = z
   .object({
-    username: z.string(),
-    email: z.string().email(),
-    password: z.string().min(10, "Password must be at least 10 characters"),
+    username: z.string().trim().min(1, "*Username cannot be blank"),
+    name: z.string().trim().min(1, "*Name cannot be blank"),
+    lastName: z.string().trim().min(1, "*Last name cannot be blank"),
+    gender: z.enum(Object.values(UserGender) as [string, ...string[]]),
+    email: z.string().trim().email("*Wrong email format"),
+    phoneNumber: z
+      .string()
+      .trim()
+      .min(10, "*Phone number must be at least 10 characters"),
+    birthDate: z.date({ required_error: "*A date of birth is required" }),
+    password: z.string().min(8, "*Password must be at least 8 characters"),
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "Passwords must match",
+    message: "*Passwords must match",
     path: ["confirmPassword"],
   });
-type TSignUpSchema = z.infer<typeof signUpSchema>; //infer the type of the schema
+
+type TSignUpSchema = z.infer<typeof signUpSchema>;
 
 export default function SignUp() {
   //use-form sign-up
@@ -26,14 +37,36 @@ export default function SignUp() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
+    resetField,
   } = useForm<TSignUpSchema>({
     resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      username: "",
+      name: "",
+      lastName: "",
+      gender: undefined,
+      email: "",
+      phoneNumber: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   const onRegisterSubmit = async (data: TSignUpSchema) => {
-    //Submit to server
-    console.log(JSON.stringify(data));
+    console.log(typeof data);
+
+    const newUser: UserRegister = {
+      name: data.name,
+      lastName: data.lastName,
+      gender: data.gender as UserGender,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      birthDate: data.birthDate,
+      username: data.username,
+      password: data.password,
+    };
+    console.log(newUser);
+    createUser(newUser);
   };
 
   return (
