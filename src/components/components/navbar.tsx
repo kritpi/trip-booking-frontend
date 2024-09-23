@@ -29,7 +29,7 @@ export const Navbar = () => {
     <nav className=" bg-white border-gray-200 ">
       <div className=" max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
         <Link href={"/"} className="flex items-center space-x-3">
-          <span className=" text-2xl font-bold">Charin Tour</span>
+          <span className=" text-3xl font-bold">Charin Tour</span>
         </Link>
         <div className=" items-center space-x-3">
           <DropdownMenu>
@@ -38,7 +38,7 @@ export const Navbar = () => {
                 variant="link"
                 className=" text-[20px] active:outline-none"
               >
-                {session?.user?.name || "My Account //ยังติดเรื่อง session ที่เอาชื่อ user ที่ login แล้วมา Show ไม่ได้"}
+                {session?.user?.name || "My Account"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">
