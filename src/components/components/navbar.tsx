@@ -20,10 +20,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 
 export const Navbar = () => {
-  
-  const { data: session, status } = useSession();
-  console.log(session?.user?.name);
-  
+  const { data: session } = useSession()   
   
   return (
     <nav className=" bg-white border-gray-200 ">
@@ -36,9 +33,9 @@ export const Navbar = () => {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="link"
-                className=" text-[20px] active:outline-none"
+                className=" text-[20px] active:outline-none text-black"
               >
-                {session?.user?.name || "My Account"}
+                {session?.user?.username || "My Account"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56">

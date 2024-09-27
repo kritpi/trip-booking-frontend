@@ -147,7 +147,7 @@ export default function SignUp() {
                     <SelectContent>
                       <SelectItem value="Male">Male</SelectItem>
                       <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Etc">Etc.</SelectItem>
+                      <SelectItem value="Other">Etc.</SelectItem>
                     </SelectContent>
                   </Select>
                   <FormMessage className="pl-2" />

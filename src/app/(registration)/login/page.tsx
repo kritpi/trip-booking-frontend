@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import {
   Form,
@@ -18,11 +18,12 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { loginUser } from "@/api/user";
 
+
 //log-in validation
 const logInSchema = z
   .object({
     email: z.string().email("Incorrect email"),
-    password: z.string().min(8, "Incorect password"),
+    password: z.string().min(1, "Incorect password"),
   })
   .refine(
     (data) => data.password === data.password && data.email === data.email,
@@ -74,7 +75,7 @@ export default function LogIn() {
       if (res?.ok === true) {
         router.replace('/')
         console.log("Successfully logged in");
-        
+        console.log(sessionStorage)
       } else {
         console.log('Cannot log in');
         form.reset({ ...form.getValues(), password: '' })
