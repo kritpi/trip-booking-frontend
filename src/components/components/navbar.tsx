@@ -20,8 +20,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 
 export const Navbar = () => {
-  const { data: session } = useSession()   
-  
+  const { data: session } = useSession();
   return (
     <nav className=" bg-white border-gray-200 ">
       <div className=" max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
@@ -45,8 +44,20 @@ export const Navbar = () => {
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuItem>
+                  <Link href={"/user/profile"}>
+                    <span className="text-[15px]">Profile</span>
+                    {/* when authenticated */}
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuGroup>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuGroup>
+                <DropdownMenuItem>
                   <Link href={"/login"}>
                     <span className="text-[15px]">Login / Sign-Up</span>
+                    {/* when unauthenticated */}
                   </Link>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
@@ -55,19 +66,11 @@ export const Navbar = () => {
 
               <DropdownMenuGroup>
                 <DropdownMenuItem>
-                  <Link href={"#"}>
-                    <span className="text-[15px]">View Your Trip</span>
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-
-              <DropdownMenuSeparator />
-              
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <a onClick={async () => {
-                    await signOut({ callbackUrl: "/"})
-                  }}>
+                  <a
+                    onClick={async () => {
+                      await signOut({ callbackUrl: "/" });
+                    }}
+                  >
                     <span className="text-[15px] text-red-600">Log Out</span>
                   </a>
                 </DropdownMenuItem>

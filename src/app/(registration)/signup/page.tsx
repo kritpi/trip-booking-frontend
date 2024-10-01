@@ -1,6 +1,5 @@
 "use client";
 
-import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
@@ -36,29 +35,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-// sign-up validation schema
-const signUpSchema = z
-  .object({
-    username: z.string().trim().min(1, "*Username cannot be blank"),
-    name: z.string().trim().min(1, "*Name cannot be blank"),
-    lastName: z.string().trim().min(1, "*Last name cannot be blank"),
-    gender: z.enum(Object.values(UserGender) as [string, ...string[]]),
-    email: z.string().trim().email("*Wrong email format"),
-    phoneNumber: z
-      .string()
-      .trim()
-      .min(10, "*Phone number must be at least 10 characters"),
-    birthDate: z.date({ required_error: "*A date of birth is required" }),
-    password: z.string().min(1, "*Password cannot be blank"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "*Passwords must match",
-    path: ["confirmPassword"],
-  });
-
-type TSignUpSchema = z.infer<typeof signUpSchema>;
+import { signUpSchema, TSignUpSchema } from "@/types/zodSchema";
 
 export default function SignUp() {
   const form = useForm<TSignUpSchema>({
@@ -77,7 +54,6 @@ export default function SignUp() {
 
   const router = useRouter();
   const onRegisterSubmit = async (data: TSignUpSchema) => {
-    
     const newUser: UserRegister = {
       name: data.name,
       lastName: data.lastName,

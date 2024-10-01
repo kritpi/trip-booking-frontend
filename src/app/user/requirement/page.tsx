@@ -1,7 +1,8 @@
 "use client";
 
-import { z } from "zod";
 import { useForm, Controller, Form } from "react-hook-form";
+import { useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,15 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Select,
   SelectContent,
@@ -27,27 +37,28 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { TimePicker } from "@/components/ui/time-picker/time-picker";
-
-const requirementSchema = z.object({
-  startDate: z.date(),
-  endDate: z.date(),
-  // memberList: z.array
-  tripMember: z.number().min(0, "Amount of trip member cannot be blank"),
-  city: z.string().min(1, "Select a city"),
-  arrivalLocation: z.string().min(1, "Select a pickup location"),
-  departureLocation: z.string().min(1, "Select a drop off location"),
-  roomType: z.string().min(1, "Room type cannot be blank"),
-  breakfast: z.boolean(),
-  description: z.string().min(1, "Trip information cannot be blank"),
-});
-
-type TRequirementSchema = z.infer<typeof requirementSchema>;
-
-const onFormSubmit = async (requirement: TRequirementSchema) => {
-  console.log(requirement);
-};
+import { requirementSchema, TRequirementSchema } from "@/types/zodSchema";
+import TripMember from "@/interface/tripMember";
+import { getMembersByUserId } from "@/api/member ";
+import { createRequirement } from "@/api/requirement";
+import { useRouter } from "next/navigation";
 
 export default function Requirement() {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const [memberData, setMemberData] = useState<TripMember[]>([]);
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+  useEffect(() => {
+    if (session?.user?.id) {
+      const data = getMembersByUserId(session.user.id);
+      data.then((data) => {
+        if (data) {
+          setMemberData(data);
+        }
+      });
+    }
+  }, [session?.user?.id]);
+
   const {
     control,
     handleSubmit,
@@ -57,7 +68,7 @@ export default function Requirement() {
     defaultValues: {
       startDate: new Date(),
       endDate: new Date(),
-      tripMember: 0,
+      memberList: [],
       city: "",
       arrivalLocation: "",
       departureLocation: "",
@@ -67,6 +78,18 @@ export default function Requirement() {
     },
   });
 
+  const onRequirementFormSubmit = async (requirement: TRequirementSchema) => {
+    if (session?.user?.id){
+      const requirementData = {
+        requirement: requirement,
+        userId: session.user.id,
+      }          
+      console.log(requirementData);
+      createRequirement(requirementData);
+      router.replace("/")
+    }
+  };
+  
   const handleDateSelect = (
     date: Date | undefined,
     onChange: (date: Date) => void
@@ -75,13 +98,13 @@ export default function Requirement() {
       onChange(date);
     }
   };
-
+  
   return (
     <div className=" mx-[200px] p-5">
       <h1 className="text-2xl font-semibold mb-6">
         Create Your New Trip Requirement
       </h1>
-      <form onSubmit={handleSubmit(onFormSubmit)} className="space-y-6">
+      <form onSubmit={handleSubmit(onRequirementFormSubmit)} className="space-y-6">
         <div className="grid grid-cols-2 gap-6">
           <div>
             <Label htmlFor="startDate" className="pl-2 text-base">
@@ -188,26 +211,72 @@ export default function Requirement() {
           </div>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="tripMember">List of Trip Member</Label>
-          <Controller
-            name="tripMember"
-            control={control}
-            render={({ field }) => (
-              <Input
-                type="number"
-                id="tripMember"
-                {...field}
-                onChange={(e) => field.onChange(parseInt(e.target.value, 10))}
-              />
-            )}
-          />
-          {errors.tripMember && (
-            <p className="text-sm text-red-500 pl-2 pt-1">
-              {errors.tripMember.message}
-            </p>
+        <Label htmlFor="memberList" className="pl-2 text-base">
+          Choose Your Trip Member
+        </Label>
+        <Controller
+          name="memberList"
+          control={control}
+          render={({ field }) => (
+            <div className="overflow-auto max-h-[400px] border rounded-md">
+              <Table>
+                <TableHeader className="sticky top-0 bg-background z-10">
+                  <TableRow>
+                    <TableHead className="text-base text-right w-1/6">
+                      Select Member
+                    </TableHead>
+                    <TableHead className="text-base w-1/6">Name</TableHead>
+                    <TableHead className="text-base w-1/6">Gender</TableHead>
+                    <TableHead className="text-base w-1/6">Age</TableHead>
+                    <TableHead className="text-base w-1/6">Allergy</TableHead>
+                    <TableHead className="text-base w-1/6">Dietary</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {memberData.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell>
+                        <Checkbox
+                          id="memberList"
+                          // checked={field.value}
+                          // checked={}
+                          // onCheckedChange={field.onChange}
+                          onCheckedChange={() => {
+                            const selectedMember = item.id;
+                            setSelectedMembers([
+                              ...selectedMembers,
+                              selectedMember,
+                            ]);
+                            field.onChange([
+                              ...selectedMembers,
+                              selectedMember,
+                            ]);
+                          }}
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <Label className="text-[14px]">{item.name}</Label>
+                      </TableCell>
+                      <TableCell>
+                        <Label className="text-[14px]">{item.gender}</Label>
+                      </TableCell>
+                      <TableCell>
+                        <Label className="text-[14px]">{item.age}</Label>
+                      </TableCell>
+                      <TableCell>
+                        <Label className="text-[14px]">{item.allergy}</Label>
+                      </TableCell>
+                      <TableCell>
+                        <Label className="text-[14px]">{item.dietary}</Label>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           )}
-        </div>
+        />
+
         <div className="grid grid-cols-3 gap-6">
           <div>
             <Label htmlFor="city" className="pl-2 text-base">
@@ -324,14 +393,14 @@ export default function Requirement() {
         <div className="flex flex-row gap-6 ">
           <div className="basis-7/12 justify-self-stretch">
             <Label htmlFor="roomType" className="pl-2 text-base">
-              Room Type
+              Hotel Type
             </Label>
             <Controller
               name="roomType"
               control={control}
               render={({ field }) => (
                 <Input
-                  placeholder="Ex. Single/Double Bedroom "
+                  placeholder="Ex. 4 Star Hotel With Single/Double Bed"
                   id="roomType"
                   {...field}
                 />
@@ -393,10 +462,9 @@ export default function Requirement() {
               {errors.description.message}
             </p>
           )}
-        </div>
-
+        </div>       
         <Button type="submit" className="w-full">
-          Submit
+          Submit  
         </Button>
       </form>
     </div>

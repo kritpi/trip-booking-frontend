@@ -1,5 +1,5 @@
 "use client";
-import { z } from "zod";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
@@ -17,21 +17,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { loginUser } from "@/api/user";
-
-
-//log-in validation
-const logInSchema = z
-  .object({
-    email: z.string().email("Incorrect email"),
-    password: z.string().min(1, "Incorect password"),
-  })
-  .refine(
-    (data) => data.password === data.password && data.email === data.email,
-    {
-      message: "Username or password is incorrect",
-    }
-  );
-type TLogInSchema = z.infer<typeof logInSchema>;
+import { logInSchema, TLogInSchema } from "@/types/zodSchema";
 
 export default function LogIn() {
   const form = useForm<TLogInSchema>({
@@ -44,47 +30,26 @@ export default function LogIn() {
 
   const router = useRouter();
 
-  // const onLogInSubmit = async (data: TLogInSchema) => {
-  //   await loginUser(data.email, data.password);
-  //   await signIn("credentials", {
-  //     email: data.email,
-  //     password: data.password,
-  //     redirect: false,
-  //   })
-  //     .then((res) => {
-  //       if (res?.ok === true) {
-  //         router.replace("/");
-  //       } else {
-  //         console.log("Cannot log in");
-  //         form.reset({ ...form.getValues(), password: '' })
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     });
-  //   console.log(JSON.stringify(data));
-  //   //backend connection
-  // };
-
   const onLogInSubmit = async (data: TLogInSchema) => {
-    await signIn('credentials', {
+    await signIn("credentials", {
       email: data.email,
       password: data.password,
       redirect: false,
-    }).then((res) => {
-      if (res?.ok === true) {
-        router.replace('/')
-        console.log("Successfully logged in");
-        console.log(sessionStorage)
-      } else {
-        console.log('Cannot log in');
-        form.reset({ ...form.getValues(), password: '' })
-      }
-    }).catch(() => {
-      console.log("Login failed");
-      
     })
-  }
+      .then((res) => {
+        if (res?.ok === true) {
+          router.replace("/");
+          console.log("Successfully logged in");
+          console.log(sessionStorage);
+        } else {
+          console.log("Cannot log in");
+          form.reset({ ...form.getValues(), password: "" });
+        }
+      })
+      .catch(() => {
+        console.log("Login failed");
+      });
+  };
 
   return (
     <div className="max-w-2xl mx-auto p-6">
