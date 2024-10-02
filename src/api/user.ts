@@ -2,8 +2,14 @@ import User from "@/interface/user";
 import UserRegister from "@/interface/userRegister";
 import axios from "@/lib/axios.config";
 
-export const getUser = async () => {
-  // get User Implements here
+export const getUser = async (userId: string) => {
+  try {
+    const { data } = await axios.get(`/user/${userId}`);
+    console.log(data); 
+    return data;
+  } catch (error) {
+    console.log(error);    
+  }
 }
 
 export const createUser = async (newUser: UserRegister) => {
@@ -22,3 +28,12 @@ export const loginUser = async (username: string, password: string) => {
     console.log(error);    
   }
 }
+
+// export const editUser = async (info: User) => {
+//   try {
+//     const { data } = await axios.put(`/user/${info.id}`, info.);
+//     console.log(data);
+//   } catch (error) {
+//     console.log(error);    
+//   }
+// }

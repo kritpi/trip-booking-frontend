@@ -11,9 +11,11 @@ import {
   deleteMemberById,
 } from "@/api/member ";
 import { UserGender } from "@/enum/UserGender";
+import { getUser } from "@/api/user";
 import { getRequirementByUserId } from "@/api/requirement";
 import TripMember from "@/interface/tripMember";
-import { memberSchema, TMemberSchema } from "@/types/zodSchema";
+import User from "@/interface/user"
+import { memberSchema, TMemberSchema, editProfileSchema, TEditprofileSchema } from "@/types/zodSchema";
 import { useRouter } from "next/navigation";
 
 import { v4 as uuidv4 } from "uuid";
@@ -55,11 +57,18 @@ export default function Profile() {
     { requirement: any; memberList: string[] }[]
   >([]);
   const requirementData: any[] = [];
+  const [userInfo, setUserInfo] = useState<User>({
+    username: '', name: '', lastName: '', phoneNumber: ''
+  });
+  // const [editedInfo, setEditedInfo] = useState<User>({
+  //   username: '', name: '', lastName: '', phoneNumber: ''
+  // });
 
   useEffect(() => {
     if (session?.user?.id) {
       const member = getMembersByUserId(session.user.id);
       const requirementData = getRequirementByUserId(session.user.id);
+      const info = getUser(session.user.id)
 
       member.then((item) => {
         if (item) {
@@ -71,6 +80,11 @@ export default function Profile() {
           setRequirementList(item);
         }
       });
+      info.then((item) => {
+        if (item) {
+          setUserInfo(item);
+        }
+      })
     }
   }, [session?.user?.id]);
 
@@ -86,7 +100,7 @@ export default function Profile() {
     }    
   };
 
-  const form = useForm<Omit<TMemberSchema, "uuid">>({
+  const memberForm = useForm<Omit<TMemberSchema, "uuid">>({
     resolver: zodResolver(memberSchema.omit({ uuid: true })),
     defaultValues: {
       name: "",
@@ -102,7 +116,7 @@ export default function Profile() {
     const newMember = { ...values, id: uuidv4() };
     //Get newMember submitted from form and add to frontend
     setMemberData([...memberData, newMember]);
-    form.reset();
+    memberForm.reset();
     //Add newMember to server
     if (session?.user?.id) {
       const member = {
@@ -115,6 +129,16 @@ export default function Profile() {
     }
   };
 
+  const profileForm = useForm<TEditprofileSchema>({
+    resolver: zodResolver(editProfileSchema),
+    defaultValues: {
+      username: "",
+      name: "",
+      lastName: "",
+      phoneNumber: "",
+    },
+  });
+
   const handleMemberDelete = (memberId: string) => {
     //Delete from frontend
     setMemberData(memberData.filter((item) => item.id !== memberId));
@@ -124,18 +148,87 @@ export default function Profile() {
 
   return (
     <div className="flex flex-col px-15">
+      <div>
+        <div className="py-4">
+          <p className="text-xl font-bold pl-2">Edit Your Profile</p>
+        </div>
+        <Form {...profileForm}>
+          <form
+            // onSubmit={profileForm.handleSubmit(onEditProfileSubmit)} 
+            className="dark:border-gray-800 "
+          >
+            <div className="grid grid-cols-2 gap-4 border rounded-md p-4">
+              <FormField
+                control={profileForm.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base ml-2">Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Name" {...field} value={userInfo.name}/>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={profileForm.control}
+                name="lastName"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base ml-2">Last Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Last Name" {...field} value={userInfo.lastName}/>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={profileForm.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base ml-2">Username</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Username" {...field} value={userInfo.username}/>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={profileForm.control}
+                name="phoneNumber"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base ml-2">Phone Number</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Phone Number" {...field} value={userInfo.phoneNumber} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+            <Button type="submit" className="self-end w-full mt-5 mb-6">
+              Save
+            </Button>
+          </form>
+        </Form>
+      </div>
       <div className=" basis-2/12">
         <div className="py-4">
           <p className="text-xl font-bold pl-2">Add Your Trip Members</p>
         </div>
-        <Form {...form}>
+        <Form {...memberForm}>
           <form
-            onSubmit={form.handleSubmit(onNewMemberFormSubmit)}
+            onSubmit={memberForm.handleSubmit(onNewMemberFormSubmit)}
             className="dark:border-gray-800 "
           >
             <div className="grid grid-cols-5 gap-4 border rounded-md p-4">
               <FormField
-                control={form.control}
+                control={memberForm.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
@@ -148,7 +241,7 @@ export default function Profile() {
                 )}
               />
               <FormField
-                control={form.control}
+                control={memberForm.control}
                 name="gender"
                 render={({ field }) => (
                   <FormItem>
@@ -175,7 +268,7 @@ export default function Profile() {
                 )}
               />
               <FormField
-                control={form.control}
+                control={memberForm.control}
                 name="age"
                 render={({ field }) => (
                   <FormItem>
@@ -188,7 +281,7 @@ export default function Profile() {
                 )}
               />
               <FormField
-                control={form.control}
+                control={memberForm.control}
                 name="allergy"
                 render={({ field }) => (
                   <FormItem>
@@ -201,7 +294,7 @@ export default function Profile() {
                 )}
               />
               <FormField
-                control={form.control}
+                control={memberForm.control}
                 name="dietary"
                 render={({ field }) => (
                   <FormItem>
