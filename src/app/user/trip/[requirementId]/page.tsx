@@ -16,8 +16,6 @@ export default function Trip({
     });
   }, [params.requirementId]);
 
-  console.log(requirement?.arrival_location);
-  console.log(requirement?.requirementMember[0].member_id);
 
   return (
     <div>

@@ -11,11 +11,11 @@ import {
   deleteMemberById,
 } from "@/api/member ";
 import { UserGender } from "@/enum/UserGender";
-import { getUser } from "@/api/user";
+import { getUser, editUser } from "@/api/user";
 import { getRequirementByUserId } from "@/api/requirement";
 import TripMember from "@/interface/tripMember";
-import User from "@/interface/user"
-import { memberSchema, TMemberSchema, editProfileSchema, TEditprofileSchema } from "@/types/zodSchema";
+import User from "@/interface/user";
+import { memberSchema, TMemberSchema } from "@/types/zodSchema";
 import { useRouter } from "next/navigation";
 
 import { v4 as uuidv4 } from "uuid";
@@ -48,6 +48,18 @@ import {
 import { Label } from "@/components/ui/label";
 import { SVGProps } from "react";
 
+const editProfileSchema = z.object({
+  username: z.string().trim().min(1, "*Username cannot be blank"),
+  name: z.string().trim().min(1, "*Name cannot be blank"),
+  lastName: z.string().trim().min(1, "*Last name cannot be blank"),
+  phoneNumber: z
+    .string()
+    .trim()
+    .min(10, "*Phone number must be at least 10 characters"),
+});
+
+type TEditProfileSchema = z.infer<typeof editProfileSchema>;
+
 export default function Profile() {
   const router = useRouter();
 
@@ -60,18 +72,18 @@ export default function Profile() {
     null
   );
   const requirementData: any[] = [];
-  const [userInfo, setUserInfo] = useState<User>({
-    username: '', name: '', lastName: '', phoneNumber: ''
-  });
-  // const [editedInfo, setEditedInfo] = useState<User>({
-  //   username: '', name: '', lastName: '', phoneNumber: ''
-  // });
+  const [editUserData, setEditUserData] = useState<User>({
+    username: '',
+    name: '',
+    lastName: '',
+    phoneNumber: ''
+  })
 
   useEffect(() => {
     if (session?.user?.id) {
       const member = getMembersByUserId(session.user.id);
       const requirementData = getRequirementByUserId(session.user.id);
-      const info = getUser(session.user.id)
+      const editedUser = getUser(session.user.id);
 
       member.then((item) => {
         if (item) {
@@ -83,11 +95,12 @@ export default function Profile() {
           setRequirementList(item);
         }
       });
-      info.then((item) => {
+      editedUser.then((item) => {
         if (item) {
-          setUserInfo(item);
+          setEditUserData(item);
+          editProfileForm.reset(item);
         }
-      })
+      });
     }
   }, [session?.user?.id]);
 
@@ -128,15 +141,37 @@ export default function Profile() {
     }
   };
 
-  const profileForm = useForm<TEditprofileSchema>({
+  const editProfileForm = useForm<TEditProfileSchema>({
     resolver: zodResolver(editProfileSchema),
-    defaultValues: {
-      username: "",
-      name: "",
-      lastName: "",
-      phoneNumber: "",
-    },
+    defaultValues: editUserData,
   });
+
+  const onEditProfileSubmit = async (values: TEditProfileSchema) => {
+    if (session?.user?.id) {
+      try {
+        console.log(values);
+        const updatedUser: User = {          
+          id: session.user.id,
+          username: values.username,
+          name: values.name,
+          lastName: values.lastName,
+          gender: editUserData.gender,
+          email: editUserData.email,
+          phoneNumber: values.phoneNumber,
+          birthDate: editUserData.birthDate,
+          password: editUserData.password,
+          role: editUserData.role,
+        };
+        console.log(updatedUser);            
+        setEditUserData(updatedUser)
+        await editUser(session.user.id, updatedUser);
+        alert("Profile updated successfully!");
+      } catch (error) {
+        console.error("Failed to update profile:", error);
+        alert("Failed to update profile. Please try again.");
+      }
+    }
+  };
 
   const handleMemberDelete = (memberId: string) => {
     //Delete from frontend
@@ -151,59 +186,61 @@ export default function Profile() {
         <div className="py-4">
           <p className="text-xl font-bold pl-2">Edit Your Profile</p>
         </div>
-        <Form {...profileForm}>
+        <Form {...editProfileForm}>
           <form
-            // onSubmit={profileForm.handleSubmit(onEditProfileSubmit)} 
-            className="dark:border-gray-800 "
+            onSubmit={editProfileForm.handleSubmit(onEditProfileSubmit)}
+            className="dark:border-gray-800"
           >
             <div className="grid grid-cols-2 gap-4 border rounded-md p-4">
               <FormField
-                control={profileForm.control}
+                control={editProfileForm.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base ml-2">Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Name" {...field} value={userInfo.name}/>
+                      <Input placeholder="Name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                control={profileForm.control}
+                control={editProfileForm.control}
                 name="lastName"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base ml-2">Last Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Last Name" {...field} value={userInfo.lastName}/>
+                      <Input placeholder="Last Name" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                control={profileForm.control}
+                control={editProfileForm.control}
                 name="username"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel className="text-base ml-2">Username</FormLabel>
                     <FormControl>
-                      <Input placeholder="Username" {...field} value={userInfo.username}/>
+                      <Input placeholder="Username" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                control={profileForm.control}
+                control={editProfileForm.control}
                 name="phoneNumber"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base ml-2">Phone Number</FormLabel>
+                    <FormLabel className="text-base ml-2">
+                      Phone Number
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="Phone Number" {...field} value={userInfo.phoneNumber} />
+                      <Input placeholder="Phone Number" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

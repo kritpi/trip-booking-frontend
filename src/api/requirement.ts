@@ -10,6 +10,16 @@ export const createRequirement = async (requirement: any) => {
   }
 }
 
+export const getRequirements = async () => {
+  try {
+    const { data } = await axios.get('/admin/requirements');
+    console.log(data);  
+    return data;
+  } catch (error) {
+    console.log(error);
+  }
+}
+
 export const getRequirementByUserId = async (userId: string) => {
   try {
     const { data } = await axios.get(`/user/requirement/user/${userId}`);
