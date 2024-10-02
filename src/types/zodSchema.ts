@@ -63,29 +63,6 @@ export const requirementSchema = z.object({
 });
 export type TRequirementSchema = z.infer<typeof requirementSchema>;
 
-export const tripSchema = z.object({
-  start_date_time: z.date(),
-  end_date_time: z.date(),
-  city: z.string().min(1),
-  arrivalLocation: z.string().min(1),
-  departureLocation: z.string().min(1),
-  member: z.number(),
-  hotel: z.string().min(1),
-  room_type: z.string().min(1),
-  breakfast_included: z.boolean(),
-  price: z.number().min(1),
-  location: z.array(
-    z.object({
-      location: z.string().min(1),
-      start_date_time: z.date(),
-      end_date_time: z.date(),
-      description: z.string().min(1),
-    })
-  ),
-  comment: z.string().min(1),
-  status: z.string().min(1),
-});
-export type TTripSchema = z.infer<typeof tripSchema>;
 
 export const tripSchema = z.object({
   start_date_time: z.date(),
