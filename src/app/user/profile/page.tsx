@@ -56,6 +56,9 @@ export default function Profile() {
   const [requirementList, setRequirementList] = useState<
     { requirement: any; memberList: string[] }[]
   >([]);
+  const [selectedRequirement, setSelectedRequirement] = useState<any | null>(
+    null
+  );
   const requirementData: any[] = [];
   const [userInfo, setUserInfo] = useState<User>({
     username: '', name: '', lastName: '', phoneNumber: ''
@@ -88,16 +91,12 @@ export default function Profile() {
     }
   }, [session?.user?.id]);
 
-  const [selectedRequirement, setSelectedRequirement] = useState<any | null>(
-    null
-  );
-
   const selectRequirement = (item: any) => {
     setSelectedRequirement(item);
-    if(selectedRequirement){
+    if (selectedRequirement) {
       console.log(selectedRequirement.requirement.id);
       router.replace(`/user/trip/${selectedRequirement.requirement.id}`);
-    }    
+    }
   };
 
   const memberForm = useForm<Omit<TMemberSchema, "uuid">>({
