@@ -64,6 +64,7 @@ export const requirementSchema = z.object({
 export type TRequirementSchema = z.infer<typeof requirementSchema>;
 
 
+
 export const tripSchema = z.object({
   start_date_time: z.date(),
   end_date_time: z.date(),
@@ -88,14 +89,14 @@ export const tripSchema = z.object({
 });
 export type TTripSchema = z.infer<typeof tripSchema>;
 
-//Edit profile Schema and type
-export const editProfileSchema = z.object({
+const editProfileSchema = z.object({
   username: z.string().trim().min(1, "*Username cannot be blank"),
   name: z.string().trim().min(1, "*Name cannot be blank"),
   lastName: z.string().trim().min(1, "*Last name cannot be blank"),
   phoneNumber: z
-      .string()
-      .trim()
-      .min(10, "*Phone number must be at least 10 characters"),
-});
-export type TEditprofileSchema = z.infer<typeof editProfileSchema>;
+    .string()
+    .trim()
+    .min(10, "*Phone number must be at least 10 characters"),
+})
+
+type TEditProfileSchema = z.infer<typeof editProfileSchema>
