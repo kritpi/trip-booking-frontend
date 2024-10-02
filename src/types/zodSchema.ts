@@ -63,4 +63,14 @@ export const requirementSchema = z.object({
 });
 export type TRequirementSchema = z.infer<typeof requirementSchema>;
 
-
+//Edit profile Schema and type
+export const editProfileSchema = z.object({
+  username: z.string().trim().min(1, "*Username cannot be blank"),
+  name: z.string().trim().min(1, "*Name cannot be blank"),
+  lastName: z.string().trim().min(1, "*Last name cannot be blank"),
+  phoneNumber: z
+      .string()
+      .trim()
+      .min(10, "*Phone number must be at least 10 characters"),
+});
+export type TEditprofileSchema = z.infer<typeof editProfileSchema>;
