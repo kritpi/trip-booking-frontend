@@ -75,6 +75,18 @@ export const Navbar = () => {
                   </a>
                 </DropdownMenuItem>
               </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              {session?.user?.role == "Admin" ? (
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <Link href={"/admin/requirement-list"}>
+                      <span className="text-[15px] text-green-600">
+                        Admin Dashboard
+                      </span>                      
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              ) : null}
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
