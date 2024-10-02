@@ -21,6 +21,16 @@ export const getMembersByUserId = async (userId: string) => {
   }
 }
 
+export const getMembersByRequirementId = async (requirementId: string) => {
+  try {
+    const { data } = await axios.get<TripMember[]>(`/user/member/requirement/${requirementId}`);    
+    console.log(data);    
+    return data
+  } catch (error) {
+    console.error(error);
+  }
+}
+
 export const deleteMemberById = async (memberId: string) => {
   try {
     //Delete Success

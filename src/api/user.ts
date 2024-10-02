@@ -28,12 +28,10 @@ export const loginUser = async (username: string, password: string) => {
     console.log(error);    
   }
 }
-
-// export const editUser = async (info: User) => {
-//   try {
-//     const { data } = await axios.put(`/user/${info.id}`, info.);
-//     console.log(data);
-//   } catch (error) {
-//     console.log(error);    
-//   }
-// }
+export const editUser = async (userId: string, editedUser: User) => {
+  try {
+    await axios.put(`/user/${userId}`, editedUser);
+  } catch (error) {
+    console.log(error);
+  }
+}
