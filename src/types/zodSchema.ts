@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { UserGender } from "@/enum/UserGender";
+import { v4 as uuidv4 } from 'uuid';
 
 //User Register Schema and type
 export const signUpSchema = z
@@ -51,6 +52,7 @@ export type TMemberSchema = z.infer<typeof memberSchema>;
 
 //Requirement Schema and type
 export const requirementSchema = z.object({
+  uuid: z.string().default(() => uuidv4()),
   startDate: z.date(),
   endDate: z.date(),
   memberList: z.array(z.string()),
@@ -65,7 +67,7 @@ export type TRequirementSchema = z.infer<typeof requirementSchema>;
 
 
 
-export const tripSchema = z.object({
+export const editTripSchema = z.object({  
   start_date_time: z.date(),
   end_date_time: z.date(),
   city: z.string().min(1),
@@ -76,18 +78,19 @@ export const tripSchema = z.object({
   room_type: z.string().min(1),
   breakfast_included: z.boolean(),
   price: z.number().min(1),
-  location: z.array(
-    z.object({
-      location: z.string().min(1),
-      start_date_time: z.date(),
-      end_date_time: z.date(),
-      description: z.string().min(1),
-    })
-  ),
-  comment: z.string().min(1),
+  comment: z.string(),
   status: z.string().min(1),
 });
-export type TTripSchema = z.infer<typeof tripSchema>;
+export type TEditTripSchema = z.infer<typeof editTripSchema>;
+
+export const tripLocationSchema = z.object({
+  id: z.string().default(() => uuidv4()),
+  location: z.string().min(1),
+  start_date_time: z.date(),
+  end_date_time: z.date(),
+  description: z.string().min(1),
+})
+export type TTripLocationSchema = z.infer<typeof tripLocationSchema>
 
 const editProfileSchema = z.object({
   username: z.string().trim().min(1, "*Username cannot be blank"),

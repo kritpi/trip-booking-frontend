@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
+import { v4 as uuidV4 } from "uuid";
 import {
   Table,
   TableBody,
@@ -66,6 +67,7 @@ export default function Requirement() {
   } = useForm<TRequirementSchema>({
     resolver: zodResolver(requirementSchema),
     defaultValues: {
+      uuid: uuidV4(),
       startDate: new Date(),
       endDate: new Date(),
       memberList: [],

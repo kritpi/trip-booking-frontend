@@ -4,9 +4,8 @@ export const createRequirement = async (requirement: any) => {
   try {
     await axios.post(`/user/requirement`, requirement);
     console.log("Requirement Created");    
-  } catch (error) {
-    console.log(error);
-    
+  } catch (error) {    
+    console.log(error);    
   }
 }
 
@@ -34,6 +33,7 @@ export const getRequirementByUserId = async (userId: string) => {
 export const getRequirementById = async (requirementId: string) => {
   try {
     const { data } = await axios.get(`/user/requirement/${requirementId}`);
+    console.log(data);
     return data;
   } catch (error) {
     console.log(error);    

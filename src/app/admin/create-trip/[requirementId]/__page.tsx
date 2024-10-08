@@ -6,7 +6,6 @@ import {
   tripLocationSchema,
   TTripLocationSchema,
 } from "@/types/zodSchema";
-
 import * as React from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,11 +13,6 @@ import { useState, useEffect } from "react";
 import Requirement from "@/interface/requirement";
 import { getRequirementById } from "@/api/requirement";
 import { getTripFromRequirementId, editTrip } from "@/api/trip";
-import {
-  createLocation,
-  deleteLocationById,
-  getLocationByTripId,
-} from "@/api/location";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -27,7 +21,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SVGProps } from "react";
 import { cn } from "@/lib/utils";
-import { format, set, parseISO } from "date-fns";
+import { format, set } from "date-fns";
 import { v4 as uuidV4 } from "uuid";
 import {
   Select,
@@ -68,72 +62,34 @@ export default function CreateTrip({
     getRequirementById(params.requirementId).then((item) => {
       setRequirement(item);
     });
-    getTripFromRequirementId(params.requirementId).then((item) => {
-      // console.log("getTripFromRequirementId result", item);
+    getTripFromRequirementId(params.requirementId).then((item) => {      
       setTripData(item);
     });
   }, [params.requirementId]);
-  useEffect(() => {
-    if (tripData) {
-      const tripId = tripData?.id;
-      console.log(tripId);
-
-      getLocationByTripId(tripId).then((item) => {
-        // console.log("Trip Id", tripData?.id);
-        setTripLocations(item?.data);
-      });
-    }
-  }, [tripData]);
-  console.log("Trip Locations", tripLocations);
-
+  console.log(tripData);
+  
+  
   const {
     control: tripControl,
     handleSubmit: handleTripSubmit,
     formState: { errors: tripErrors },
-    reset: resetTripForm,
   } = useForm<TEditTripSchema>({
     resolver: zodResolver(editTripSchema),
-    defaultValues: {
-      start_date_time: new Date(tripData?.start_date_time),
-      end_date_time: new Date(tripData?.end_date_time),
-      city: tripData?.city,
-      arrivalLocation: tripData?.arrival_location,
-      departureLocation: tripData?.departure_location,
-      member: tripData?.members,
-      hotel: tripData?.hotel,
-      room_type: tripData?.room_type,
-      breakfast_included: tripData?.breakfast_included,
-      price: tripData?.price,
-      comment: tripData?.comment,
+    defaultValues: {      
+      start_date_time: new Date(),
+      end_date_time: new Date(),
+      city: "",
+      arrivalLocation: "",
+      departureLocation: "",
+      member: 0,
+      hotel: "",
+      room_type: "",
+      breakfast_included: false,
+      price: 0,
+      // comment: "",
       status: "Wait for confirmation",
     },
   });
-
-  useEffect(() => {
-    if (tripData) {
-      resetTripForm({
-        start_date_time: tripData.start_date_time
-          ? parseISO(tripData.start_date_time)
-          : new Date(),
-        end_date_time: tripData.end_date_time
-          ? parseISO(tripData.end_date_time)
-          : new Date(),
-        city: tripData.city,
-        arrivalLocation: tripData.arrivalLocation,
-        departureLocation: tripData.departureLocation,
-        member: tripData.members,
-        hotel: tripData.hotel,
-        room_type: tripData.room_type,
-        breakfast_included: tripData.breakfast_included,
-        price: tripData.price,
-        comment: tripData.comment,
-        status: tripData.status,
-      });
-      // resetTripForm({ start_date_time: tripData.start_date_time });
-      // resetTripForm({ end_date_time: tripData.end_date_time });
-      // resetTripForm({ end_date_time: tripData.hotel });
-    }
-  }, [tripData]);
 
   const {
     control: locationControl,
@@ -160,13 +116,14 @@ export default function CreateTrip({
   };
 
   const onTripEditFormSubmit = async (editedTrip: TEditTripSchema) => {
-    try {
-      // console.log(editedTrip.uuid);
+    try {      
+      // console.log(editedTrip.uuid);      
       console.log(editedTrip);
-      // console.log(tripData?.id);
+      console.log(tripData?.id);
+      
       editTrip(tripData?.id, editedTrip);
     } catch (error) {
-      console.log(error);
+      console.log(error);      
     }
   };
 
@@ -175,7 +132,6 @@ export default function CreateTrip({
   ) => {
     const newLocation = { ...tripLocationData, uuid: uuidV4() };
     setTripLocations([...tripLocations, newLocation]);
-    createLocation(newLocation, tripData?.id);
     console.log(newLocation);
     console.log(tripLocations);
 
@@ -184,12 +140,9 @@ export default function CreateTrip({
   };
 
   const handleLocationDelete = (locationId: string) => {
-    console.log("Location Id to delete", locationId);
-
     //Delete from frontend
-    setTripLocations(tripLocations.filter((item) => item.id !== locationId));
+    setTripLocations(tripLocations.filter((item) => item.uuid !== locationId));
     //Delete from server
-    deleteLocationById(locationId);
     // todo
   };
 
@@ -292,7 +245,7 @@ export default function CreateTrip({
           <CardTitle>Create Trip</CardTitle>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleTripSubmit(onTripEditFormSubmit)}>
+        <form onSubmit={handleTripSubmit(onTripEditFormSubmit)}>            
             <div className="grid grid-cols-3 gap-4 pb-5">
               <div>
                 <Label htmlFor="startDate" className="pl-2 text-base">
@@ -302,41 +255,41 @@ export default function CreateTrip({
                   name="start_date_time"
                   control={tripControl}
                   render={({ field }) => (
-                    <>
-                      <Button
-                        variant="outline"
-                        className={cn(
-                          "w-full justify-center text-[14px] font-normal",
-                          !field.value && "text-muted-foreground"
-                        )}
-                        aria-label="Select start date and time"
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {/* {field.value = new Date(tripData?.start_date_time)} */}
-                        {field.value ? (
-                          <span>
-                            {format(
-                              new Date(tripData?.start_date_time ?? new Date()),
-                              "PPP HH:mm"
-                            )}
-                          </span>
-                        ) : (
-                          <span>
-                            {format(
-                              new Date(tripData?.start_date_time ?? new Date()),
-                              "PPP HH:mm"
-                            )}
-                          </span>
-                        )}
-                      </Button>
-                    </>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-center text-[14px] font-normal",
+                            !field.value && "text-muted-foreground"
+                          )}
+                          aria-label="Select start date and time"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(field.value, "PPP HH:mm")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(date) => field.onChange(date)}
+                          initialFocus
+                        />
+                        <div className="p-3 border-t border-border">
+                          <TimePicker
+                            setDate={(date) => field.onChange(date)}
+                            date={field.value}
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   )}
                 />
-                {tripErrors.start_date_time && (
-                  <p className="text-base text-red-500">
-                    {tripErrors.start_date_time.message}
-                  </p>
-                )}
               </div>
               <div>
                 <Label htmlFor="endDate" className="pl-2 text-base">
@@ -346,38 +299,41 @@ export default function CreateTrip({
                   name="end_date_time"
                   control={tripControl}
                   render={({ field }) => (
-                    <Button
-                      variant="outline"
-                      className={cn(
-                        "w-full justify-center text-[14px] font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                      aria-label="Select end date and time"
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {field.value ? (
-                        <span>
-                          {format(
-                            new Date(tripData?.end_date_time ?? new Date()),
-                            "PPP HH:mm"
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-center text-[14px] font-normal",
+                            !field.value && "text-muted-foreground"
                           )}
-                        </span>
-                      ) : (
-                        <span>
-                          {format(
-                            new Date(tripData?.end_date_time ?? new Date()),
-                            "PPP HH:mm"
+                          aria-label="Select end date and time"
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? (
+                            format(field.value, "PPP HH:mm")
+                          ) : (
+                            <span>Pick a date</span>
                           )}
-                        </span>
-                      )}
-                    </Button>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={(date) => field.onChange(date)}
+                          initialFocus
+                        />
+                        <div className="p-3 border-t border-border">
+                          <TimePicker
+                            setDate={(date) => field.onChange(date)}
+                            date={field.value}
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                   )}
                 />
-                {tripErrors.end_date_time && (
-                  <p className="text-base text-red-500">
-                    {tripErrors.end_date_time.message}
-                  </p>
-                )}
               </div>
               <div>
                 <Label htmlFor="city" className="pl-2 text-base">
@@ -387,10 +343,7 @@ export default function CreateTrip({
                   name="city"
                   control={tripControl}
                   render={({ field }) => (
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || tripData?.city}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select city from requirement" />
                       </SelectTrigger>
@@ -399,19 +352,12 @@ export default function CreateTrip({
                         <SelectItem value="Chiang Rai">Chiang Rai</SelectItem>
                         <SelectItem value="Nan">Nan</SelectItem>
                         <SelectItem value="Phrae">Phrae</SelectItem>
-                        <SelectItem value="Mae Hong Son">
-                          Mae Hong Son
-                        </SelectItem>
+                        <SelectItem value="Mae Hong Son">Mae Hong Son</SelectItem>
                         <SelectItem value="Lampang">Lampang</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {tripErrors.city && (
-                  <p className="text-base text-red-500">
-                    {tripErrors.city.message}
-                  </p>
-                )}
               </div>
               <div>
                 <Label htmlFor="arrivalLocation" className="pl-2 text-base">
@@ -421,16 +367,9 @@ export default function CreateTrip({
                   name="arrivalLocation"
                   control={tripControl}
                   render={({ field }) => (
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || tripData?.arrival_location}
-                      // value={field.value || tripData?.arrival_location}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger>
-                        <SelectValue
-                          placeholder="Select an arrival location"
-                          {...field}
-                        />
+                        <SelectValue placeholder="Select an arrival location" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Chiang Mai International Airport">
@@ -440,25 +379,16 @@ export default function CreateTrip({
                           Chiang Rai International Airport
                         </SelectItem>
                         <SelectItem value="Nan Airport">Nan Airport</SelectItem>
-                        <SelectItem value="Phrae Airport">
-                          Phrae Airport
-                        </SelectItem>
+                        <SelectItem value="Phrae Airport">Phrae Airport</SelectItem>
                         <SelectItem value="Pai Airport">Pai Airport</SelectItem>
                         <SelectItem value="Mae Hong Son Airport">
                           Mae Hong Son Airport
                         </SelectItem>
-                        <SelectItem value="Lampang Airport">
-                          Lampang Airport
-                        </SelectItem>
+                        <SelectItem value="Lampang Airport">Lampang Airport</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {tripErrors.arrivalLocation && (
-                  <p className="text-base text-red-500">
-                    {tripErrors.arrivalLocation.message}
-                  </p>
-                )}
               </div>
               <div>
                 <Label htmlFor="departureLocation" className="pl-2 text-base">
@@ -468,15 +398,9 @@ export default function CreateTrip({
                   name="departureLocation"
                   control={tripControl}
                   render={({ field }) => (
-                    <Select
-                      onValueChange={field.onChange}
-                      value={field.value || tripData?.departure_location}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <SelectTrigger>
-                        <SelectValue
-                          placeholder="Select an departure location"
-                          {...field}
-                        />
+                        <SelectValue placeholder="Select a departure location" />
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="Chiang Mai International Airport">
@@ -486,25 +410,16 @@ export default function CreateTrip({
                           Chiang Rai International Airport
                         </SelectItem>
                         <SelectItem value="Nan Airport">Nan Airport</SelectItem>
-                        <SelectItem value="Phrae Airport">
-                          Phrae Airport
-                        </SelectItem>
+                        <SelectItem value="Phrae Airport">Phrae Airport</SelectItem>
                         <SelectItem value="Pai Airport">Pai Airport</SelectItem>
                         <SelectItem value="Mae Hong Son Airport">
                           Mae Hong Son Airport
                         </SelectItem>
-                        <SelectItem value="Lampang Airport">
-                          Lampang Airport
-                        </SelectItem>
+                        <SelectItem value="Lampang Airport">Lampang Airport</SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {tripErrors.departureLocation && (
-                  <p className="text-base text-red-500">
-                    {tripErrors.departureLocation.message}
-                  </p>
-                )}
               </div>
               <div>
                 <Label htmlFor="member" className="pl-2 text-base">
@@ -514,54 +429,25 @@ export default function CreateTrip({
                   name="member"
                   control={tripControl}
                   render={({ field }) => (
-                    <>
-                      <Input
-                        type="number"
-                        placeholder="No Member"
-                        {...field}
-                        {...tripControl.register("member", {
-                          valueAsNumber: true,
-                        })}
-                      />
-                    </>
+                    <Input
+                      type="number"
+                      placeholder="Member"
+                      {...field}
+                      onChange={(e) => field.onChange(e.target.valueAsNumber)}
+                    />
                   )}
                 />
-                {tripErrors.member && (
-                  <p className="text-base text-red-500">
-                    {tripErrors.member.message}
-                  </p>
-                )}
+                {tripErrors.member && <p>{tripErrors.member.message}</p>}
               </div>
               <div>
                 <Label htmlFor="hotel" className="pl-2 text-base">
                   Hotel
                 </Label>
-                {/* <Input
+                <Input
                   type="text"
-                  placeholder="Add hotel name"                
-                  value={tripData?.hotel}
-                  
+                  placeholder="Add hotel name"
                   {...tripControl.register("hotel")}
-                  
-                /> */}
-                <Controller
-                  name="hotel"
-                  control={tripControl}
-                  render={({ field }) => (
-                    <Input
-                      type="text"
-                      placeholder="Add hotel name"
-                      {...tripControl.register("hotel")}
-                      {...field}
-                      // onChange={(e) => field.onChange(e.target.valueAsNumber)}
-                    />
-                  )}
                 />
-                {tripErrors.hotel && (
-                  <p className="text-base text-red-500">
-                    {tripErrors.hotel.message}
-                  </p>
-                )}
               </div>
               <div>
                 <Label htmlFor="room_type" className="pl-2 text-base">
@@ -581,9 +467,8 @@ export default function CreateTrip({
                     <div className="items-center flex space-x-2">
                       <Checkbox
                         id="breakfast_included"
-                        // checked={field.value}
+                        checked={field.value}
                         onCheckedChange={field.onChange}
-                        checked={requirement.requirement.breakfast_included}
                       />
                       <div className="grid gap-1.5 leading-none">
                         <Label
@@ -616,11 +501,6 @@ export default function CreateTrip({
                     />
                   )}
                 />
-                {tripErrors.price && (
-                  <p className="text-base text-red-500">
-                    {tripErrors.price.message}
-                  </p>
-                )}
               </div>
               <Button type="submit" className="mt-6 col-span-2">
                 Save
@@ -809,7 +689,7 @@ export default function CreateTrip({
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => handleLocationDelete(location.id)}
+                          onClick={() => handleLocationDelete(location.uuid)}
                         >
                           <TrashIcon className="w-5 h-5 text-red-500" />
                         </Button>
@@ -826,7 +706,7 @@ export default function CreateTrip({
         <CardHeader>
           <CardTitle>User Comment</CardTitle>
           <CardContent>
-            <p className="text-base">{tripData?.comment}</p>
+            <p>Show user comment on this trip</p>
           </CardContent>
         </CardHeader>
       </Card>
