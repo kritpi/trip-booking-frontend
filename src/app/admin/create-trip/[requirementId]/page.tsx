@@ -53,7 +53,6 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { TimePicker } from "@/components/ui/time-picker/time-picker";
-import { log } from "console";
 
 export default function CreateTrip({
   params,

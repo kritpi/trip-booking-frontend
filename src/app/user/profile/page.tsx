@@ -46,6 +46,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
 import { SVGProps } from "react";
 
 const editProfileSchema = z.object({
@@ -73,11 +74,11 @@ export default function Profile() {
   );
   const requirementData: any[] = [];
   const [editUserData, setEditUserData] = useState<User>({
-    username: '',
-    name: '',
-    lastName: '',
-    phoneNumber: ''
-  })
+    username: "",
+    name: "",
+    lastName: "",
+    phoneNumber: "",
+  });
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -150,7 +151,7 @@ export default function Profile() {
     if (session?.user?.id) {
       try {
         console.log(values);
-        const updatedUser: User = {          
+        const updatedUser: User = {
           id: session.user.id,
           username: values.username,
           name: values.name,
@@ -162,8 +163,8 @@ export default function Profile() {
           password: editUserData.password,
           role: editUserData.role,
         };
-        console.log(updatedUser);            
-        setEditUserData(updatedUser)
+        console.log(updatedUser);
+        setEditUserData(updatedUser);
         await editUser(session.user.id, updatedUser);
         alert("Profile updated successfully!");
       } catch (error) {
@@ -459,6 +460,18 @@ export default function Profile() {
                   </TableCell>
                   <TableCell className="text-[14px] truncate">
                     {item.requirement.departure_location}
+                  </TableCell>
+                  <TableCell className="text-[14px] float-right">
+                    {item.requirement.status === "Canceled" ||
+                    item.requirement.status === "Overdue" ? (
+                      <Badge variant={"destructive"} className="text-[14px]">
+                        {item.requirement.status}
+                      </Badge>
+                    ) : (
+                      <Badge variant={"outline"} className="text-[14px]">
+                        {item.requirement.status}
+                      </Badge>
+                    )}                  
                   </TableCell>
                 </TableRow>
               ))}
