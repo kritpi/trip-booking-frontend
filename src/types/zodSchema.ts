@@ -103,3 +103,10 @@ const editProfileSchema = z.object({
 })
 
 type TEditProfileSchema = z.infer<typeof editProfileSchema>
+
+
+const paymentSchema = z.object({
+  price: z.string().trim().min(1, "*Price cannot be blank"),
+  payDateTime: z.date({ required_error: "*Pay date is required" }),
+});
+type TPaymentSchema = z.infer<typeof paymentSchema>;
