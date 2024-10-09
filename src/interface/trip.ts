@@ -6,7 +6,7 @@ export default interface Trip{
   city: string;
   arrival_location: string;
   departure_location: string;
-  member: number; //amount of member in this trip
+  members: number; //amount of member in this trip
   hotel: string; //hotel name
   room_type: string; //room type
   breakfast_included: boolean; //breakfast included
