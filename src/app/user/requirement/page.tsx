@@ -102,12 +102,13 @@ export default function Requirement() {
   };
   
   return (
-    <div className=" mx-[200px] p-5">
+    <div className=" mx-[80px] p-5">
+    {/* <div className="flex flex-col px-15"> */}
       <h1 className="text-2xl font-semibold mb-6">
         Create Your New Trip Requirement
       </h1>
       <form onSubmit={handleSubmit(onRequirementFormSubmit)} className="space-y-6">
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-2 gap-6 mb-3">
           <div>
             <Label htmlFor="startDate" className="pl-2 text-base">
               Start Date
@@ -224,8 +225,8 @@ export default function Requirement() {
               <Table>
                 <TableHeader className="sticky top-0 bg-background z-10">
                   <TableRow>
-                    <TableHead className="text-base text-right w-1/6">
-                      Select Member
+                    <TableHead className="text-base text-left w-1/6 ">
+                      Select
                     </TableHead>
                     <TableHead className="text-base w-1/6">Name</TableHead>
                     <TableHead className="text-base w-1/6">Gender</TableHead>

@@ -161,9 +161,11 @@ export default function CreateTrip({
   const onTripEditFormSubmit = async (editedTrip: TEditTripSchema) => {
     try {
       // console.log(editedTrip.uuid);
+      editedTrip.status = "Wait for confirmation"
       console.log(editedTrip);
       // console.log(tripData?.id);
       editTrip(tripData?.id, editedTrip);
+      alert("Trip Edited");
     } catch (error) {
       console.log(error);
     }
@@ -177,9 +179,9 @@ export default function CreateTrip({
     createLocation(newLocation, tripData?.id);
     console.log(newLocation);
     console.log(tripLocations);
-
     //todo add newLocation to server
     resetLocationForm();
+    alert("Location Added");
   };
 
   const handleLocationDelete = (locationId: string) => {

@@ -70,7 +70,7 @@ export default function TripDetail({
       breakfast_included: tripData?.breakfast_included ?? false,
       price: tripData?.price ?? 0,
       comment: comment,
-      status: tripData?.status ?? "Creating Trip",
+      status: tripData?.status ?? "",
     };
 
     if (tripData?.id) {

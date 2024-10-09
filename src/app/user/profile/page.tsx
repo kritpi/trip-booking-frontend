@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/table";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import { ChevronLeft } from "lucide-react";
 import { SVGProps } from "react";
 
 const editProfileSchema = z.object({
@@ -182,301 +183,307 @@ export default function Profile() {
   };
 
   return (
-    <div className="flex flex-col px-15">
-      <div>
-        <div className="py-4">
-          <p className="text-xl font-bold pl-2">Edit Your Profile</p>
-        </div>
-        <Form {...editProfileForm}>
-          <form
-            onSubmit={editProfileForm.handleSubmit(onEditProfileSubmit)}
-            className="dark:border-gray-800"
-          >
-            <div className="grid grid-cols-2 gap-4 border rounded-md p-4">
-              <FormField
-                control={editProfileForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base ml-2">Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={editProfileForm.control}
-                name="lastName"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base ml-2">Last Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Last Name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={editProfileForm.control}
-                name="username"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base ml-2">Username</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Username" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={editProfileForm.control}
-                name="phoneNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base ml-2">
-                      Phone Number
-                    </FormLabel>
-                    <FormControl>
-                      <Input placeholder="Phone Number" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <Button type="submit" className="self-end w-full mt-5 mb-6">
-              Save
-            </Button>
-          </form>
-        </Form>
-      </div>
-      <div className=" basis-2/12">
-        <div className="py-4">
-          <p className="text-xl font-bold pl-2">Add Your Trip Members</p>
-        </div>
-        <Form {...memberForm}>
-          <form
-            onSubmit={memberForm.handleSubmit(onNewMemberFormSubmit)}
-            className="dark:border-gray-800 "
-          >
-            <div className="grid grid-cols-5 gap-4 border rounded-md p-4">
-              <FormField
-                control={memberForm.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base ml-2">Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={memberForm.control}
-                name="gender"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base ml-2">Gender</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+    <div>
+      <div className="flex flex-col px-15">
+        <div>
+          <div className="py-4">
+            <p className="text-xl font-bold pl-2">Edit Your Profile</p>
+          </div>
+          <Form {...editProfileForm}>
+            <form
+              onSubmit={editProfileForm.handleSubmit(onEditProfileSubmit)}
+              className="dark:border-gray-800"
+            >
+              <div className="grid grid-cols-2 gap-4 border rounded-md p-4">
+                <FormField
+                  control={editProfileForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base ml-2">Name</FormLabel>
                       <FormControl>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select gender" />
-                        </SelectTrigger>
+                        <Input placeholder="Name" {...field} />
                       </FormControl>
-                      <SelectContent>
-                        {Object.values(UserGender).map((gender) => (
-                          <SelectItem key={gender} value={gender}>
-                            {gender}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={memberForm.control}
-                name="age"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base ml-2">Age</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="Age" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={memberForm.control}
-                name="allergy"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base ml-2">Allergy</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Allergy" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={memberForm.control}
-                name="dietary"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-base ml-2">Dietary</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Dietary" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-            <Button type="submit" className="self-end w-full mt-5 mb-6">
-              Add Member
-            </Button>
-          </form>
-        </Form>
-      </div>
-      <div className="basis-7/12">
-        <p className="text-xl font-bold mb-4 pl-2">List of Members</p>
-        <div className="overflow-auto max-h-[400px] border rounded-md">
-          <Table>
-            <TableHeader className="sticky top-0 bg-background z-10 ">
-              <TableRow>
-                <TableHead className="text-base w-1/6 text-center">
-                  Name
-                </TableHead>
-                <TableHead className="text-base w-1/6 text-center">
-                  Gender
-                </TableHead>
-                <TableHead className="text-base w-1/6 text-center">
-                  Age
-                </TableHead>
-                <TableHead className="text-base w-1/6 text-center">
-                  Allergy
-                </TableHead>
-                <TableHead className="text-base w-1/6 text-center">
-                  Dietary
-                </TableHead>
-                <TableHead className="text-base w-1/6 text-center">
-                  Delete
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {memberData.map((item, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    <Label className="text-[14px] grid justify-items-center">
-                      {item.name}
-                    </Label>
-                  </TableCell>
-                  <TableCell>
-                    <Label className="text-[14px] grid justify-items-center">
-                      {item.gender}
-                    </Label>
-                  </TableCell>
-                  <TableCell>
-                    <Label className="text-[14px] grid justify-items-center">
-                      {item.age}
-                    </Label>
-                  </TableCell>
-                  <TableCell>
-                    <Label className="text-[14px] grid justify-items-center">
-                      {item.allergy}
-                    </Label>
-                  </TableCell>
-                  <TableCell>
-                    <Label className="text-[14px] grid justify-items-center">
-                      {item.dietary}
-                    </Label>
-                  </TableCell>
-                  <TableCell className="grid justify-items-center">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleMemberDelete(item.id)}
-                    >
-                      <TrashIcon className="w-5 h-5 text-red-500" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editProfileForm.control}
+                  name="lastName"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base ml-2">
+                        Last Name
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Last Name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editProfileForm.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base ml-2">Username</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Username" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={editProfileForm.control}
+                  name="phoneNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base ml-2">
+                        Phone Number
+                      </FormLabel>
+                      <FormControl>
+                        <Input placeholder="Phone Number" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <Button type="submit" className="self-end w-full mt-5 mb-6">
+                Save
+              </Button>
+            </form>
+          </Form>
         </div>
-      </div>
-      <p className="text-xl font-bold my-4 pl-2">List of Requirements</p>
-      <div className="flex">
-        <div className="flex-grow overflow-auto max-h-[400px] border rounded-md">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-base w-1/6">Start Date</TableHead>
-                <TableHead className="text-base w-1/6">End Date</TableHead>
-                <TableHead className="text-base w-1/6">City</TableHead>
-                <TableHead className="text-base ">Arrival Location</TableHead>
-                <TableHead className="text-base ">Departure Location</TableHead>
-                <TableHead className="text-base w-1/6 text-end">
-                  Status
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {requirementList.map((item, index) => (
-                <TableRow
-                  key={index} // Use a unique identifier from the item if available, or fall back to the index
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => selectRequirement(item)}
-                >
-                  <TableCell className="text-[14px]">
-                    {new Date(
-                      item.requirement.start_date_time
-                    ).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-[14px]">
-                    {new Date(
-                      item.requirement.end_date_time
-                    ).toLocaleDateString()}
-                  </TableCell>
-                  <TableCell className="text-[14px] truncate">
-                    {item.requirement.city}
-                  </TableCell>
-                  <TableCell className="text-[14px] truncate">
-                    {item.requirement.arrival_location}
-                  </TableCell>
-                  <TableCell className="text-[14px] truncate">
-                    {item.requirement.departure_location}
-                  </TableCell>
-                  <TableCell className="text-[14px] float-right">
-                    {item.requirement.status === "Canceled" ||
-                    item.requirement.status === "Overdue" ? (
-                      <Badge variant={"destructive"} className="text-[14px]">
-                        {item.requirement.status}
-                      </Badge>
-                    ) : (
-                      <Badge variant={"outline"} className="text-[14px]">
-                        {item.requirement.status}
-                      </Badge>
-                    )}                  
-                  </TableCell>
+        <div className=" basis-2/12">
+          <div className="py-4">
+            <p className="text-xl font-bold pl-2">Add Your Trip Members</p>
+          </div>
+          <Form {...memberForm}>
+            <form
+              onSubmit={memberForm.handleSubmit(onNewMemberFormSubmit)}
+              className="dark:border-gray-800 "
+            >
+              <div className="grid grid-cols-5 gap-4 border rounded-md p-4">
+                <FormField
+                  control={memberForm.control}
+                  name="name"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base ml-2">Name</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Name" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={memberForm.control}
+                  name="gender"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base ml-2">Gender</FormLabel>
+                      <Select
+                        onValueChange={field.onChange}
+                        defaultValue={field.value}
+                      >
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select gender" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {Object.values(UserGender).map((gender) => (
+                            <SelectItem key={gender} value={gender}>
+                              {gender}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={memberForm.control}
+                  name="age"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base ml-2">Age</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="Age" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={memberForm.control}
+                  name="allergy"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base ml-2">Allergy</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Allergy" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={memberForm.control}
+                  name="dietary"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-base ml-2">Dietary</FormLabel>
+                      <FormControl>
+                        <Input placeholder="Dietary" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <Button type="submit" className="self-end w-full mt-5 mb-6">
+                Add Member
+              </Button>
+            </form>
+          </Form>
+        </div>
+        <div className="basis-7/12">
+          <p className="text-xl font-bold mb-4 pl-2">List of Members</p>
+          <div className="overflow-auto max-h-[400px] border rounded-md">
+            <Table>
+              <TableHeader className="sticky top-0 bg-background z-10 ">
+                <TableRow>
+                  <TableHead className="text-base w-1/6 text-center">
+                    Name
+                  </TableHead>
+                  <TableHead className="text-base w-1/6 text-center">
+                    Gender
+                  </TableHead>
+                  <TableHead className="text-base w-1/6 text-center">
+                    Age
+                  </TableHead>
+                  <TableHead className="text-base w-1/6 text-center">
+                    Allergy
+                  </TableHead>
+                  <TableHead className="text-base w-1/6 text-center">
+                    Dietary
+                  </TableHead>
+                  <TableHead className="text-base w-1/6 text-center">
+                    Delete
+                  </TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {memberData.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell>
+                      <Label className="text-[14px] grid justify-items-center">
+                        {item.name}
+                      </Label>
+                    </TableCell>
+                    <TableCell>
+                      <Label className="text-[14px] grid justify-items-center">
+                        {item.gender}
+                      </Label>
+                    </TableCell>
+                    <TableCell>
+                      <Label className="text-[14px] grid justify-items-center">
+                        {item.age}
+                      </Label>
+                    </TableCell>
+                    <TableCell>
+                      <Label className="text-[14px] grid justify-items-center">
+                        {item.allergy}
+                      </Label>
+                    </TableCell>
+                    <TableCell>
+                      <Label className="text-[14px] grid justify-items-center">
+                        {item.dietary}
+                      </Label>
+                    </TableCell>
+                    <TableCell className="grid justify-items-center">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleMemberDelete(item.id)}
+                      >
+                        <TrashIcon className="w-5 h-5 text-red-500" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </div>
+        <p className="text-xl font-bold my-4 pl-2">List of Requirements</p>
+        <div className="flex">
+          <div className="flex-grow overflow-auto max-h-[400px] border rounded-md">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-base w-1/6">Start Date</TableHead>
+                  <TableHead className="text-base w-1/6">End Date</TableHead>
+                  <TableHead className="text-base w-1/6">City</TableHead>
+                  <TableHead className="text-base ">Arrival Location</TableHead>
+                  <TableHead className="text-base ">
+                    Departure Location
+                  </TableHead>
+                  <TableHead className="text-base w-1/6 text-end">
+                    Status
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {requirementList.map((item, index) => (
+                  <TableRow
+                    key={index} // Use a unique identifier from the item if available, or fall back to the index
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => selectRequirement(item)}
+                  >
+                    <TableCell className="text-[14px]">
+                      {new Date(
+                        item.requirement.start_date_time
+                      ).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-[14px]">
+                      {new Date(
+                        item.requirement.end_date_time
+                      ).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-[14px] truncate">
+                      {item.requirement.city}
+                    </TableCell>
+                    <TableCell className="text-[14px] truncate">
+                      {item.requirement.arrival_location}
+                    </TableCell>
+                    <TableCell className="text-[14px] truncate">
+                      {item.requirement.departure_location}
+                    </TableCell>
+                    <TableCell className="text-[14px] float-right">
+                      {item.requirement.status === "Canceled" ||
+                      item.requirement.status === "Overdue" ? (
+                        <Badge variant={"destructive"} className="text-[14px]">
+                          {item.requirement.status}
+                        </Badge>
+                      ) : (
+                        <Badge variant={"outline"} className="text-[14px]">
+                          {item.requirement.status}
+                        </Badge>
+                      )}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
         </div>
       </div>
     </div>
