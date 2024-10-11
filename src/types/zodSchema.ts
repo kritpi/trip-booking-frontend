@@ -44,7 +44,14 @@ export const memberSchema = z.object({
   uuid: z.string(),
   name: z.string().min(1),
   gender: z.enum(Object.values(UserGender) as [string, ...string[]]),
-  age: z.string(),
+  age: z
+    .string()
+    .refine((val) => {
+      const parsed = parseInt(val, 10);
+      return !isNaN(parsed) && parsed >= 1;
+    }, {
+      message: "Age must be a number and not less than 1",
+    }),
   allergy: z.string(),
   dietary: z.string(),
 });
