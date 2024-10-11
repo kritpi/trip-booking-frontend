@@ -81,17 +81,17 @@ export default function Requirement() {
   });
 
   const onRequirementFormSubmit = async (requirement: TRequirementSchema) => {
-    if (session?.user?.id){
+    if (session?.user?.id) {
       const requirementData = {
         requirement: requirement,
         userId: session.user.id,
-      }          
+      };
       console.log(requirementData);
       createRequirement(requirementData);
-      router.replace("/")
+      router.replace("/");
     }
   };
-  
+
   const handleDateSelect = (
     date: Date | undefined,
     onChange: (date: Date) => void
@@ -100,14 +100,17 @@ export default function Requirement() {
       onChange(date);
     }
   };
-  
+
   return (
     <div className=" mx-[80px] p-5">
-    {/* <div className="flex flex-col px-15"> */}
+      {/* <div className="flex flex-col px-15"> */}
       <h1 className="text-2xl font-semibold mb-6">
         Create Your New Trip Requirement
       </h1>
-      <form onSubmit={handleSubmit(onRequirementFormSubmit)} className="space-y-6">
+      <form
+        onSubmit={handleSubmit(onRequirementFormSubmit)}
+        className="space-y-6"
+      >
         <div className="grid grid-cols-2 gap-6 mb-3">
           <div>
             <Label htmlFor="startDate" className="pl-2 text-base">
@@ -142,6 +145,7 @@ export default function Requirement() {
                       onSelect={(date) =>
                         handleDateSelect(date, field.onChange)
                       }
+                      disabled={(date) => date < add(new Date(), { days: 10 })}
                       initialFocus
                     />
                     <div className="p-3 border-t border-border">
@@ -194,6 +198,7 @@ export default function Requirement() {
                       onSelect={(date) =>
                         handleDateSelect(date, field.onChange)
                       }
+                      disabled={(date) => date < add(new Date(), { days: 10 })}
                       initialFocus
                     />
                     <div className="p-3 border-t border-border">
@@ -465,9 +470,9 @@ export default function Requirement() {
               {errors.description.message}
             </p>
           )}
-        </div>       
+        </div>
         <Button type="submit" className="w-full">
-          Submit  
+          Submit
         </Button>
       </form>
     </div>
