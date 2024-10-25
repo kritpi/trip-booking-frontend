@@ -63,13 +63,15 @@ export default function Requirement() {
   const {
     control,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<TRequirementSchema>({
     resolver: zodResolver(requirementSchema),
     defaultValues: {
       uuid: uuidV4(),
-      startDate: new Date(),
-      endDate: new Date(),
+      startDate: add(new Date(), { days: 10 }),
+      endDate: add(new Date(), { days: 11}),
       memberList: [],
       city: "",
       arrivalLocation: "",
@@ -79,6 +81,9 @@ export default function Requirement() {
       description: "",
     },
   });
+
+  const watchStartDate = watch("startDate");
+  const watchEndDate = watch("endDate");
 
   const onRequirementFormSubmit = async (requirement: TRequirementSchema) => {
     if (session?.user?.id) {
@@ -92,6 +97,39 @@ export default function Requirement() {
     }
   };
 
+  const handleStartDateChange = (date: Date | undefined) => {
+    if (date) {
+      setValue('startDate', date);
+      const newEndDate = add(date, { days: 1 });
+      setValue('endDate', newEndDate);
+    }
+  };
+
+  const handleEndDateChange = (date: Date | undefined) => {
+    if (date) {
+      const startDateValue = watch("startDate");
+  
+      if (!isOverOneDay(startDateValue, date)) {
+        console.error("End date must be after start date.");
+        setValue("endDate", add(watchStartDate, { days: 1 }));
+        return; 
+      }
+      setValue("endDate", date);
+    }
+  };
+
+  function isOverOneDay(date1: Date, date2: Date) {
+    const date1Ms = date1.getTime();
+    const date2Ms = date2.getTime();
+  
+    const differenceMs = Math.abs(date2Ms - date1Ms);
+  
+    const oneDayMs = 24 * 60 * 60 * 1000; 
+    const differenceDays = differenceMs / oneDayMs;
+  
+    return differenceDays > 1;
+  }
+  
   const handleDateSelect = (
     date: Date | undefined,
     onChange: (date: Date) => void
@@ -141,16 +179,21 @@ export default function Requirement() {
                   <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
+                      captionLayout="dropdown-buttons"
                       selected={field.value}
-                      onSelect={(date) =>
-                        handleDateSelect(date, field.onChange)
-                      }
-                      disabled={(date) => date < add(new Date(), { days: 10 })}
+                      onSelect={(date) => {
+                        console.log(date);
+
+                        handleStartDateChange(date);
+                      }}
+                      fromYear={add(new Date(), { years: 0 }).getFullYear()}
+                      toYear={add(new Date(), { years: 2 }).getFullYear()}
                       initialFocus
+                      disabled={(date) => date < add(new Date(), { days: 9 })}
                     />
                     <div className="p-3 border-t border-border">
                       <TimePicker
-                        setDate={(date) => field.onChange(date)}
+                        setDate={(date) => handleStartDateChange(date)}
                         date={field.value}
                       />
                     </div>
@@ -194,16 +237,25 @@ export default function Requirement() {
                   <PopoverContent className="w-auto p-0">
                     <Calendar
                       mode="single"
+                      captionLayout="dropdown-buttons"
                       selected={field.value}
-                      onSelect={(date) =>
-                        handleDateSelect(date, field.onChange)
-                      }
-                      disabled={(date) => date < add(new Date(), { days: 10 })}
+                      onSelect={(date) => {
+                        handleEndDateChange(date)
+                      }}
+                      fromYear={add(new Date(), { years: 0 }).getFullYear()}
+                      toYear={add(new Date(), { years: 2 }).getFullYear()}
                       initialFocus
+                      disabled={(date) => {
+                        const startDateValue = watch("startDate");
+                        return date <= startDateValue; // Disable if the date is not after startDate
+                      }}
+                      // disabled={(date) => date < add(watchStartDate, { days: 1 })}
                     />
                     <div className="p-3 border-t border-border">
                       <TimePicker
-                        setDate={(date) => field.onChange(date)}
+                        setDate={(date) => {
+                          handleEndDateChange(date)
+                        }}
                         date={field.value}
                       />
                     </div>
