@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
+import { editProfileSchema, TEditProfileSchema } from "@/types/zodSchema";
 import { useSession } from "next-auth/react";
 import {
   createMember,
   getMembersByUserId,
   deleteMemberById,
 } from "@/api/member ";
+import { getTripFromRequirementId } from "@/api/trip";
 import { UserGender } from "@/enum/UserGender";
 import { getUser, editUser } from "@/api/user";
 import { getRequirementByUserId } from "@/api/requirement";
@@ -49,18 +50,7 @@ import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft } from "lucide-react";
 import { SVGProps } from "react";
-
-const editProfileSchema = z.object({
-  username: z.string().trim().min(1, "*Username cannot be blank"),
-  name: z.string().trim().min(1, "*Name cannot be blank"),
-  lastName: z.string().trim().min(1, "*Last name cannot be blank"),
-  phoneNumber: z
-    .string()
-    .trim()
-    .min(10, "*Phone number must be at least 10 characters"),
-});
-
-type TEditProfileSchema = z.infer<typeof editProfileSchema>;
+import Trip from "@/interface/trip";
 
 export default function Profile() {
   const router = useRouter();
@@ -80,6 +70,8 @@ export default function Profile() {
     lastName: "",
     phoneNumber: "",
   });
+  const [disable, setDisable] = useState(false);
+  const [tripData, setTripData] = useState<Trip>();
 
   useEffect(() => {
     if (session?.user?.id) {
@@ -108,9 +100,29 @@ export default function Profile() {
 
   const selectRequirement = (item: any) => {
     setSelectedRequirement(item);
+
+    getTripFromRequirementId(selectedRequirement?.requirement.id).then(
+      (item) => {
+        setTripData(item);
+      }
+    );
+    console.log(tripData);
+
     if (selectedRequirement) {
       console.log(selectedRequirement.requirement.id);
-      router.replace(`/user/trip/${selectedRequirement.requirement.id}`);
+      if (selectedRequirement.requirement.status === "Canceled") {
+      } else if (
+        selectedRequirement.requirement.status === "Wait for payment" ||
+        selectedRequirement.requirement.status === "Checking payment" || 
+        selectedRequirement.requirement.status === "Deposit paid" || 
+        selectedRequirement.requirement.status === "Completed" 
+      ) {
+        if (tripData) {
+          router.replace(`/user/payment/${tripData?.id}`);
+        }
+      } else {
+        router.replace(`/user/trip/${selectedRequirement.requirement.id}`);
+      }
     }
   };
 
@@ -468,8 +480,7 @@ export default function Profile() {
                       {item.requirement.departure_location}
                     </TableCell>
                     <TableCell className="text-[14px] float-right">
-                      {item.requirement.status === "Canceled" ||
-                      item.requirement.status === "Overdue" ? (
+                      {item.requirement.status === "Canceled" ? (
                         <Badge variant={"destructive"} className="text-[14px]">
                           {item.requirement.status}
                         </Badge>

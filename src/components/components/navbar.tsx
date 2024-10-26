@@ -52,18 +52,16 @@ export const Navbar = () => {
               </DropdownMenuGroup>
 
               <DropdownMenuSeparator />
-
-              <DropdownMenuGroup>
-                <DropdownMenuItem>
-                  <Link href={"/login"}>
-                    <span className="text-[15px]">Login / Sign-Up</span>
-                    {/* when unauthenticated */}
-                  </Link>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-
-              <DropdownMenuSeparator />
-
+              {session?.user ? null : (
+                <DropdownMenuGroup>
+                  <DropdownMenuItem>
+                    <Link href={"/login"}>
+                      <span className="text-[15px]">Login / Sign-Up</span>
+                      {/* when unauthenticated */}
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+              )}
               <DropdownMenuGroup>
                 <DropdownMenuItem>
                   <a
@@ -82,7 +80,7 @@ export const Navbar = () => {
                     <Link href={"/admin/requirement-list"}>
                       <span className="text-[15px] text-green-600">
                         Admin Dashboard
-                      </span>                      
+                      </span>
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>

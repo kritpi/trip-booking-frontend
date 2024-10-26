@@ -22,5 +22,5 @@ export default interface Trip{
   ];
   comment: string;
   create_at: string;
-  status: string; //accept, edit, cancle, pending
+  status: string; //accept, edit, cancel, pending
 }

@@ -22,5 +22,5 @@ export default interface Requirement {
     dietary: string;
     owner_id: string;
   }[];
-  //status: string; //creating, created, payment pending, deposite paid, total price paid, cancled
+  //status: string; //creating, created, payment pending, deposite paid, total price paid, canceled
 }

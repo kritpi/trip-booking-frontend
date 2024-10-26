@@ -255,7 +255,7 @@ export default function SignUp() {
                   Create Account
                 </Button>
                 <Button asChild variant={"outline"} className="mt-2">
-                  <Link href={"/login"}>Cancle</Link>
+                  <Link href={"/login"}>Cancel</Link>
                 </Button>
               </div>
             </div>

@@ -6,7 +6,6 @@ import { useEffect, useState } from "react";
 import Requirement from "@/interface/requirement";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -18,6 +17,10 @@ import {
 import Trip from "@/interface/trip";
 import { editTrip } from "@/api/trip";
 import { TEditTripSchema } from "@/types/zodSchema";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { createInvoice } from "@/api/invoice";
+import Invoice from "@/interface/invoice";
 
 export default function TripDetail({
   params,
@@ -29,6 +32,8 @@ export default function TripDetail({
   const [locationList, setLocationList] = useState<any[]>([]);
   const [comment, setComment] = useState<string>("");
   const [disable, setDisable] = useState<boolean>(false);
+  const router = useRouter();
+  const { data: session } = useSession();
 
   useEffect(() => {
     getRequirementById(params.requirementId).then((item) => {
@@ -44,6 +49,14 @@ export default function TripDetail({
       getLocationByTripId(tripData.id).then((item) => {
         setLocationList(item?.data || []);
       });
+      if (
+        tripData.status === "Creating tour" ||
+        tripData.status === "Checking payment" || 
+        tripData.status === "Deposit paid" || 
+        tripData.status === "Completed" 
+      ) {
+        setDisable(true);
+      }
     }
   }, [tripData]);
 
@@ -70,12 +83,85 @@ export default function TripDetail({
       breakfast_included: tripData?.breakfast_included ?? false,
       price: tripData?.price ?? 0,
       comment: comment,
-      status: tripData?.status ?? "",
+      status: tripData?.status ?? "Creating Trip",
     };
 
     if (tripData?.id) {
       await editTrip(tripData.id, trip);
       setDisable(true);
+    } else {
+      console.error("Trip ID is undefined");
+    }
+  };
+
+  const onBookTheTrip = async () => {
+    if (tripData?.id) {
+      const trip: TEditTripSchema = {
+        start_date_time: tripData?.start_date_time
+          ? new Date(tripData.start_date_time)
+          : new Date(),
+        end_date_time: tripData?.end_date_time
+          ? new Date(tripData.end_date_time)
+          : new Date(),
+        city: tripData?.city ?? "",
+        arrivalLocation: tripData?.arrival_location ?? "",
+        departureLocation: tripData?.departure_location ?? "",
+        member: tripData?.members ?? 0,
+        hotel: tripData?.hotel ?? "",
+        room_type: tripData?.room_type ?? "",
+        breakfast_included: tripData?.breakfast_included ?? false,
+        price: tripData?.price ?? 0,
+        comment: tripData?.comment ?? "",
+        status: "Wait for payment",
+      };
+      // await create invoice (trip,user)
+      // edit tour status to
+      // await createPayment
+      const invoice: any = {
+        pay_date_time: "1975-10-24T00:00:00Z", //date for invoice that unpaid
+        pay_price: 0,
+        pay_check_deposit: false,
+        pay_check_remaining: false,
+        user_id: session?.user?.id || "",
+        trip_id: tripData.id,
+      };
+
+      try {
+        console.log(invoice);
+        await createInvoice(invoice);
+        await editTrip(tripData.id, trip);
+      } catch (error) {
+        console.log(error);
+      }
+
+      router.replace(`/user/payment/${tripData.id}`);
+    }
+    console.log("Trip Id: ", tripData?.id);
+  };
+
+  const onCancelTrip = async () => {
+    const trip: TEditTripSchema = {
+      start_date_time: tripData?.start_date_time
+        ? new Date(tripData.start_date_time)
+        : new Date(),
+      end_date_time: tripData?.end_date_time
+        ? new Date(tripData.end_date_time)
+        : new Date(),
+      city: tripData?.city ?? "",
+      arrivalLocation: tripData?.arrival_location ?? "",
+      departureLocation: tripData?.departure_location ?? "",
+      member: tripData?.members ?? 0,
+      hotel: tripData?.hotel ?? "",
+      room_type: tripData?.room_type ?? "",
+      breakfast_included: tripData?.breakfast_included ?? false,
+      price: tripData?.price ?? 0,
+      comment: tripData?.comment ?? "",
+      status: "Canceled",
+    };
+
+    if (tripData?.id) {
+      await editTrip(tripData.id, trip);
+      router.replace("/user/profile");
     } else {
       console.error("Trip ID is undefined");
     }
@@ -285,6 +371,7 @@ export default function TripDetail({
             onClick={onCommentSubmit}
             variant={"outline"}
             className="w-full"
+            disabled={disable}
           >
             Edit your trip
           </Button>
@@ -292,9 +379,15 @@ export default function TripDetail({
         </CardContent>
       </Card>
       <div className="grid grid-cols-2 gap-6">
-        <Button disabled={disable}>Book the Trip</Button>
-        <Button variant={"destructive"} disabled={disable}>
-          Cancle
+        <Button disabled={disable} onClick={onBookTheTrip}>
+          Book The Trip
+        </Button>
+        <Button
+          variant={"destructive"}
+          disabled={disable}
+          onClick={onCancelTrip}
+        >
+          Cancel
         </Button>
       </div>
     </div>
