@@ -22,7 +22,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Calendar as CalendarIcon } from "lucide-react";
+import { Calendar as CalendarIcon, Router } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SVGProps } from "react";
@@ -53,6 +53,7 @@ import {
 } from "@/components/ui/popover";
 import { Label } from "@/components/ui/label";
 import { TimePicker } from "@/components/ui/time-picker/time-picker";
+import { useRouter } from "next/navigation";
 
 export default function CreateTrip({
   params,
@@ -62,7 +63,7 @@ export default function CreateTrip({
   const [requirement, setRequirement] = useState<Requirement | null>(null);
   const [tripLocations, setTripLocations] = useState<TTripLocationSchema[]>([]);
   const [tripData, setTripData] = useState<any | null>(null);
-
+  const router = useRouter();
   useEffect(() => {
     getRequirementById(params.requirementId).then((item) => {
       setRequirement(item);
@@ -161,7 +162,7 @@ export default function CreateTrip({
   const onTripEditFormSubmit = async (editedTrip: TEditTripSchema) => {
     try {
       // console.log(editedTrip.uuid);
-      editedTrip.status = "Wait for confirmation"
+      editedTrip.status = "Wait for confirm"
       console.log(editedTrip);
       // console.log(tripData?.id);
       editTrip(tripData?.id, editedTrip);
@@ -196,6 +197,10 @@ export default function CreateTrip({
 
   if (!requirement) {
     return <div>Loading...</div>;
+  }
+
+  const onManageInvoiceClick = () => {
+    router.replace(`/admin/payment/${tripData.id}`)
   }
 
   return (
@@ -827,10 +832,11 @@ export default function CreateTrip({
         <CardHeader>
           <CardTitle>User Comment</CardTitle>
           <CardContent>
-            <p className="text-base">{tripData?.comment}</p>
+            <p className="text-base">{tripData?.comment ?? "No Comment Yet"}</p>
           </CardContent>
         </CardHeader>
       </Card>
+      <Button className="text-base w-full" onClick={onManageInvoiceClick}>View Invoice Data</Button>
     </div>
   );
 }

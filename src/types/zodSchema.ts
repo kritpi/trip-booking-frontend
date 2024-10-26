@@ -72,8 +72,6 @@ export const requirementSchema = z.object({
 });
 export type TRequirementSchema = z.infer<typeof requirementSchema>;
 
-
-
 export const editTripSchema = z.object({  
   start_date_time: z.date(),
   end_date_time: z.date(),
@@ -99,7 +97,7 @@ export const tripLocationSchema = z.object({
 })
 export type TTripLocationSchema = z.infer<typeof tripLocationSchema>
 
-const editProfileSchema = z.object({
+export const editProfileSchema = z.object({
   username: z.string().trim().min(1, "*Username cannot be blank"),
   name: z.string().trim().min(1, "*Name cannot be blank"),
   lastName: z.string().trim().min(1, "*Last name cannot be blank"),
@@ -108,12 +106,10 @@ const editProfileSchema = z.object({
     .trim()
     .min(10, "*Phone number must be at least 10 characters"),
 })
+export type TEditProfileSchema = z.infer<typeof editProfileSchema>
 
-type TEditProfileSchema = z.infer<typeof editProfileSchema>
-
-
-const paymentSchema = z.object({
-  price: z.string().trim().min(1, "*Price cannot be blank"),
-  payDateTime: z.date({ required_error: "*Pay date is required" }),
+export const paymentSchema = z.object({
+  price: z.string().trim().min(1, "Price cannot be blank"),
+  payDateTime: z.date({ required_error: "Payment date is required" }),
 });
-type TPaymentSchema = z.infer<typeof paymentSchema>;
+export type TPaymentSchema = z.infer<typeof paymentSchema>;

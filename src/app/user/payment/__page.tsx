@@ -30,7 +30,7 @@ import { cn } from "@/lib/utils";
 import { TimePicker } from "@/components/ui/time-picker/time-picker";
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import Trip from "@/interface/trip"
+import Trip from "@/interface/trip";
 import Requirement from "@/interface/requirement";
 import { getRequirementById } from "@/api/requirement";
 import { getTripFromRequirementId } from "@/api/trip";
@@ -95,17 +95,13 @@ export default function Payment({
           <div className="grid grid-cols-2">
             <div className="grid grid-cols-2">
               <dt>Start Date:</dt>
-              <dd>{new Date(
-                  tripData?.start_date_time ?? ""
-                ).toDateString()}{" "}
+              <dd>
+                {new Date(tripData?.start_date_time ?? "").toDateString()}{" "}
               </dd>
             </div>
             <div className="grid grid-cols-2">
               <dt>End Date:</dt>
-              <dd>{new Date(
-                  tripData?.end_date_time ?? ""
-                ).toDateString()}{" "}
-              </dd>
+              <dd>{new Date(tripData?.end_date_time ?? "").toDateString()} </dd>
             </div>
             <div className="grid grid-cols-2">
               <dt>City:</dt>
@@ -133,13 +129,13 @@ export default function Payment({
             </div>
             <div className="grid grid-cols-2 col-start-2">
               <dt>Pay onsite:</dt>
-              <dd>-{tripData?.price *0.3}</dd>
+              <dd>-{(tripData?.price ?? 0) * 0.3}</dd>
             </div>
             <div className="grid grid-cols-2 col-start-2">
               <dt className="font-bold">Summary:</dt>
-              <dd>{tripData?.price *0.7}</dd>
+              <dd>{(tripData?.price ?? 0) * 0.7}</dd>
             </div>
-          </div>      
+          </div>
         </div>
       </div>
       <div className="col-span-2 border rounded-md p-4">
@@ -164,9 +160,15 @@ export default function Payment({
                   name="price"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="pl-2 text-base">Pay Amount</FormLabel>
+                      <FormLabel className="pl-2 text-base">
+                        Pay Amount
+                      </FormLabel>
                       <FormControl>
-                        <Input type="number" placeholder="Pay Amount" {...field} />
+                        <Input
+                          type="number"
+                          placeholder="Pay Amount"
+                          {...field}
+                        />
                       </FormControl>
                       <FormMessage className="pl-2" />
                     </FormItem>
@@ -231,7 +233,7 @@ export default function Payment({
                   >
                     Submit
                   </Button>
-                  {/* <Button asChild variant={"outline"} className=" mt-2"><Link href={"/user/profile"}>Cancel</Link></Button> */}             
+                  {/* <Button asChild variant={"outline"} className=" mt-2"><Link href={"/user/profile"}>Cancel</Link></Button> */}
                 </div>
               </div>
             </form>

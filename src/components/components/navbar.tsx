@@ -62,9 +62,6 @@ export const Navbar = () => {
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               )}
-
-              <DropdownMenuSeparator />
-
               <DropdownMenuGroup>
                 <DropdownMenuItem>
                   <a
