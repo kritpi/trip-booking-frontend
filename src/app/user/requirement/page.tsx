@@ -527,6 +527,12 @@ export default function Requirement() {
           Submit
         </Button>
       </form>
+      <p className="text-base text-red-500 pl-2 pt-2 font-semibold">
+        *Note: The customer must book the trip within 10 days after requirement have been created.
+      </p>
+      <p className="text-base text-red-500 pl-2 pt-2 font-semibold">
+        *Note: The customer must pay the deposit within 20 days since requirement created and the remaining payment will be on the trip start date.
+      </p>
     </div>
   );
 }

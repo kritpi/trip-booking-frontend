@@ -51,9 +51,9 @@ export default function TripDetail({
       });
       if (
         tripData.status === "Creating tour" ||
-        tripData.status === "Checking payment" || 
-        tripData.status === "Deposit paid" || 
-        tripData.status === "Completed" 
+        tripData.status === "Checking payment" ||
+        tripData.status === "Deposit paid" ||
+        tripData.status === "Completed"
       ) {
         setDisable(true);
       }
@@ -390,6 +390,12 @@ export default function TripDetail({
           Cancel
         </Button>
       </div>
+      <p className="text-base text-red-500 pl-2 pt-2 font-semibold">
+        *Note: The customer must book the trip within 10 days after requirement have been created.
+      </p>
+      <p className="text-base text-red-500 pl-2 pt-2 font-semibold">
+        *Note: The customer must pay the deposit within 20 days since requirement created and the remaining payment will be on the trip start date.
+      </p>
     </div>
   );
 }

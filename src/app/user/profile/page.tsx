@@ -194,15 +194,19 @@ export default function Profile() {
     deleteMemberById(memberId);
   };
   const getStatusBadgeVariant = (status: string) => {
+    if (!status) {
+      return "secondary";
+    }
+
     switch (status.toLowerCase()) {
       case "canceled":
-        return "destructive";
+      return "destructive";
       case "completed":
-        return "default";
+      return "default";
       case "in progress":
-        return "outline";
+      return "outline";
       default:
-        return "secondary";
+      return "secondary";
     }
   };
 

@@ -20,7 +20,6 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import { RainbowButton } from "@/components/ui/rainbow-button";
 
-
 export const Navbar = () => {
   const { data: session } = useSession();
   return (
@@ -35,7 +34,7 @@ export const Navbar = () => {
             className="flex items-center space-x-3"
           >
             {/* <RainbowButton className="text-[18px] m-o"> */}
-            
+
             <Button
               variant="link"
               className=" text-xl active:outline-none text-black"
@@ -69,7 +68,21 @@ export const Navbar = () => {
                 </DropdownMenuGroup>
 
                 <DropdownMenuSeparator />
-                {session?.user ? null : (
+                {session?.user ? (
+                  <DropdownMenuGroup>
+                    <DropdownMenuItem>
+                      <a
+                        onClick={async () => {
+                          await signOut({ callbackUrl: "/" });
+                        }}
+                      >
+                        <span className="text-[15px] text-red-600">
+                          Log Out
+                        </span>
+                      </a>
+                    </DropdownMenuItem>
+                  </DropdownMenuGroup>
+                ) : (
                   <DropdownMenuGroup>
                     <DropdownMenuItem>
                       <Link href={"/login"}>
@@ -79,17 +92,7 @@ export const Navbar = () => {
                     </DropdownMenuItem>
                   </DropdownMenuGroup>
                 )}
-                <DropdownMenuGroup>
-                  <DropdownMenuItem>
-                    <a
-                      onClick={async () => {
-                        await signOut({ callbackUrl: "/" });
-                      }}
-                    >
-                      <span className="text-[15px] text-red-600">Log Out</span>
-                    </a>
-                  </DropdownMenuItem>
-                </DropdownMenuGroup>
+
                 <DropdownMenuSeparator />
                 {session?.user?.role == "Admin" ? (
                   <DropdownMenuGroup>

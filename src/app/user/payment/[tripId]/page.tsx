@@ -121,7 +121,6 @@ export default function Payment({ params }: { params: { tripId: string } }) {
   const onViewTripClick = () => {
     router.replace(`/user/trip/${tripData?.requirement_id}`);
   };
-  
 
   const onDownLoadClick = async () => {
     const html2pdf = await require("html2pdf.js");
@@ -129,33 +128,32 @@ export default function Payment({ params }: { params: { tripId: string } }) {
 
     // Define options with higher scale and image adjustments
     const options = {
-        margin: 20,
-        filename: "invoice.pdf",
-        jsPDF: {
-            unit: 'pt',
-            format: 'a3',
-            orientation: 'landscape'
-        },
-        html2canvas: {
-            scale: 3,  // Increase scale to improve quality
-            useCORS: true, // Ensures images from other domains are rendered
-            
-        },
-        image: { type: 'jpeg', quality: 1 },
-        pagebreak: { mode: ['css', 'legacy'] }
+      margin: 20,
+      filename: "invoice.pdf",
+      jsPDF: {
+        unit: "pt",
+        format: "a3",
+        orientation: "landscape",
+      },
+      html2canvas: {
+        scale: 3, // Increase scale to improve quality
+        useCORS: true, // Ensures images from other domains are rendered
+      },
+      image: { type: "jpeg", quality: 1 },
+      pagebreak: { mode: ["css", "legacy"] },
     };
 
     // Generate PDF with custom font and image adjustments
     html2pdf()
-        .set(options)
-        .from(element)
-        .toPdf()
-        .get('pdf')
-        .then((pdf:any) => {
-            pdf.setFontSize(15);  // Set desired font size
-        })
-        .save();
-};
+      .set(options)
+      .from(element)
+      .toPdf()
+      .get("pdf")
+      .then((pdf: any) => {
+        pdf.setFontSize(15); // Set desired font size
+      })
+      .save();
+  };
 
   return (
     <div>
@@ -215,9 +213,13 @@ export default function Payment({ params }: { params: { tripId: string } }) {
                       Payment Status:{" "}
                     </span>
                     {invoiceData?.pay_check_deposit ? (
-                      <Badge variant={"outline"} className="text-[12px]">Paid</Badge>
+                      <Badge variant={"outline"} className="text-[12px]">
+                        Paid
+                      </Badge>
                     ) : (
-                      <Badge variant={"destructive"} className="text-[12px]">Unpaid</Badge>
+                      <Badge variant={"destructive"} className="text-[12px]">
+                        Unpaid
+                      </Badge>
                     )}
                   </div>
                 </CardContent>
@@ -271,22 +273,31 @@ export default function Payment({ params }: { params: { tripId: string } }) {
                       Payment Status:{" "}
                     </span>
                     {invoiceData?.pay_check_remaining ? (
-                      <Badge variant={"outline"} className="text-[12px]">Paid</Badge>
+                      <Badge variant={"outline"} className="text-[12px]">
+                        Paid
+                      </Badge>
                     ) : (
-                      <Badge variant={"destructive"} className="text-[12px]">Unpaid</Badge>
+                      <Badge variant={"destructive"} className="text-[12px]">
+                        Unpaid
+                      </Badge>
                     )}
                   </div>
                 </CardContent>
               </Card>
               <Label className="text-[14px] text-red-500">
-                *Note: The customer must pay the deposit before pay the
-                remaining on the trip start date.
+                *Note: The customer must pay the deposit within 20 days since
+                requirement created and the remaining payment will be on the
+                trip start date.
               </Label>
               <div className="grid grid-cols-2 gap-2">
                 <Button onClick={onViewTripClick} className="my-2">
                   View Your Trip Detail
                 </Button>
-                <Button onClick={onDownLoadClick} className="my-2" variant={'outline'}>
+                <Button
+                  onClick={onDownLoadClick}
+                  className="my-2"
+                  variant={"outline"}
+                >
                   Download Invoice
                 </Button>
               </div>
