@@ -225,6 +225,16 @@ export default function TripDetail({
               <dt className="font-semibold">Description:</dt>
               <dd>{requirement?.requirement.trip_description}</dd>
             </div>
+            <div>
+              <dt className="font-semibold">Created At:</dt>
+              <dd>{new Date(
+                  requirement?.requirement.create_at ?? ""
+                ).toDateString()}{" "}
+                |{" "}
+                {new Date(
+                  requirement?.requirement.create_at ?? ""
+                ).toLocaleTimeString()}</dd>
+            </div>
           </dl>
         </CardContent>
       </Card>

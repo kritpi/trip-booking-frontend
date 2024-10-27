@@ -259,6 +259,14 @@ export default function CreateTrip({
               <dt className="font-semibold">Description:</dt>
               <dd>{requirement.requirement.trip_description}</dd>
             </div>
+            <div>
+              <dt className="font-semibold">Created At:</dt>
+              <dd>{new Date(requirement.requirement.end_date_time).toDateString()}{" "}
+                |{" "}
+                {new Date(
+                  requirement.requirement.end_date_time
+                ).toLocaleTimeString()}</dd>
+            </div>
           </dl>
         </CardContent>
       </Card>
