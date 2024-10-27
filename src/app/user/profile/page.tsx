@@ -113,9 +113,9 @@ export default function Profile() {
       if (selectedRequirement.requirement.status === "Canceled") {
       } else if (
         selectedRequirement.requirement.status === "Wait for payment" ||
-        selectedRequirement.requirement.status === "Checking payment" || 
-        selectedRequirement.requirement.status === "Deposit paid" || 
-        selectedRequirement.requirement.status === "Completed" 
+        selectedRequirement.requirement.status === "Checking payment" ||
+        selectedRequirement.requirement.status === "Deposit paid" ||
+        selectedRequirement.requirement.status === "Completed"
       ) {
         if (tripData) {
           router.replace(`/user/payment/${tripData?.id}`);
@@ -193,6 +193,18 @@ export default function Profile() {
     //Delete from server
     deleteMemberById(memberId);
   };
+  const getStatusBadgeVariant = (status: string) => {
+    switch (status.toLowerCase()) {
+      case "canceled":
+        return "destructive";
+      case "completed":
+        return "default";
+      case "in progress":
+        return "outline";
+      default:
+        return "secondary";
+    }
+  };
 
   return (
     <div>
@@ -206,63 +218,100 @@ export default function Profile() {
               onSubmit={editProfileForm.handleSubmit(onEditProfileSubmit)}
               className="dark:border-gray-800"
             >
-              <div className="grid grid-cols-2 gap-4 border rounded-md p-4">
-                <FormField
-                  control={editProfileForm.control}
-                  name="name"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base ml-2">Name</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editProfileForm.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base ml-2">
-                        Last Name
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Last Name" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editProfileForm.control}
-                  name="username"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base ml-2">Username</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Username" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={editProfileForm.control}
-                  name="phoneNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-base ml-2">
-                        Phone Number
-                      </FormLabel>
-                      <FormControl>
-                        <Input placeholder="Phone Number" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+              <div>
+                <div className="border rounded-md p-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <FormField
+                      control={editProfileForm.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base ml-2">Name</FormLabel>
+                          <FormControl>
+                            <Input placeholder="Name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editProfileForm.control}
+                      name="lastName"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base ml-2">
+                            Last Name
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="Last Name" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editProfileForm.control}
+                      name="username"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base ml-2">
+                            Username
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="Username" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={editProfileForm.control}
+                      name="phoneNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="text-base ml-2">
+                            Phone Number
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="Phone Number" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 gap-4 pt-3">
+                    <div>
+                      <span className="pl-3 text-base font-semibold">
+                        Birth Date:{" "}
+                      </span>
+                      <span>
+                        {editUserData?.birthDate
+                          ? new Date(
+                              editUserData.birthDate
+                            ).toLocaleDateString()
+                          : ""}
+                      </span>
+                    </div>
+
+                    <div className="grid justify-items-center">
+                      <div>
+                        <span className="pl-3 text-base font-semibold">
+                          Email:{" "}
+                        </span>
+                        <span className="text-base">{editUserData?.email}</span>
+                      </div>
+                    </div>
+                    <div className="grid justify-items-end">
+                      <div>
+                        <span className="pl-3 text-base font-semibold ">
+                          Gender:{" "}
+                        </span>
+                        <span>{editUserData?.gender}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <Button type="submit" className="self-end w-full mt-5 mb-6">
                 Save
@@ -387,9 +436,9 @@ export default function Profile() {
                   <TableHead className="text-base w-1/6 text-center">
                     Dietary
                   </TableHead>
-                  <TableHead className="text-base w-1/6 text-center">
+                  {/* <TableHead className="text-base w-1/6 text-center">
                     Delete
-                  </TableHead>
+                  </TableHead> */}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -420,7 +469,7 @@ export default function Profile() {
                         {item.dietary}
                       </Label>
                     </TableCell>
-                    <TableCell className="grid justify-items-center">
+                    {/* <TableCell className="grid justify-items-center">
                       <Button
                         variant="ghost"
                         size="icon"
@@ -428,7 +477,7 @@ export default function Profile() {
                       >
                         <TrashIcon className="w-5 h-5 text-red-500" />
                       </Button>
-                    </TableCell>
+                    </TableCell> */}
                   </TableRow>
                 ))}
               </TableBody>
@@ -480,15 +529,12 @@ export default function Profile() {
                       {item.requirement.departure_location}
                     </TableCell>
                     <TableCell className="text-[14px] float-right">
-                      {item.requirement.status === "Canceled" ? (
-                        <Badge variant={"destructive"} className="text-[14px]">
-                          {item.requirement.status}
-                        </Badge>
-                      ) : (
-                        <Badge variant={"outline"} className="text-[14px]">
-                          {item.requirement.status}
-                        </Badge>
-                      )}
+                      <Badge
+                        variant={getStatusBadgeVariant(item.requirement.status)}
+                        className="text-xs font-medium"
+                      >
+                        {item.requirement.status}
+                      </Badge>
                     </TableCell>
                   </TableRow>
                 ))}

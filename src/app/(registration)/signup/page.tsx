@@ -25,7 +25,7 @@ import {
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { add, format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
@@ -52,6 +52,7 @@ export default function SignUp() {
     },
   });
 
+  const { setValue } = form;
   const router = useRouter();
   const onRegisterSubmit = async (data: TSignUpSchema) => {
     const newUser: UserRegister = {
@@ -65,9 +66,28 @@ export default function SignUp() {
       password: data.password,
     };
     console.log(newUser);
-    createUser(newUser);
-    form.reset();
-    router.replace("/login");
+    
+    try {
+      createUser(newUser);    
+      console.log("no error");
+      router.replace("/login");
+      
+    } catch (error) {
+      console.error("Error creating user:", error);
+      if (error instanceof Error && error.message.includes("Email is used")) {        
+        alert("Email is used");
+        
+      }
+    } finally{
+      router.replace("/signup");
+      form.reset();
+    }
+  };
+  const handleStartDateChange = (date: Date | undefined) => {
+    if (date) {
+      setValue('birthDate', date);
+      
+    }
   };
 
   return (
@@ -150,7 +170,7 @@ export default function SignUp() {
                 <FormItem>
                   <FormLabel className="pl-2 text-base">Phone Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="Phone Number" {...field} />
+                    <Input placeholder="Phone Number" {...field} type="tel" pattern="[0-9]*"/>
                   </FormControl>
                   <FormMessage className="pl-2" />
                 </FormItem>
@@ -160,41 +180,45 @@ export default function SignUp() {
               control={form.control}
               name="birthDate"
               render={({ field }) => (
-                <FormItem className="">
+                <FormItem>
                   <FormLabel className="pl-2 text-base">Birth Date</FormLabel>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[300px] pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                      />
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-center text-[14px] font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                      aria-label="Select start date and time"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      captionLayout="dropdown-buttons"
+                      selected={field.value}
+                      onSelect={(date) => {
+                      console.log(date);
+
+                      handleStartDateChange(date);
+                      }}
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
+                      initialFocus
+                    />
+                    
                     </PopoverContent>
-                  </Popover>
-                  <FormMessage className="pl-2" />
+                </Popover>
                 </FormItem>
+                
               )}
             />
             <FormField

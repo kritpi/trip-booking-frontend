@@ -27,7 +27,7 @@ export default function RootLayout({
       <body className={notoSanThai.className}>
         <NextAuthProvider>
           <Providers>
-            <Navbar></Navbar>
+            <Navbar></Navbar>          
             <div className="grid mx-[15rem] my-[3rem]">{children}</div>
           </Providers>
         </NextAuthProvider>

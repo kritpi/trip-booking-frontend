@@ -69,7 +69,8 @@ export default function Payment({ params }: { params: { tripId: string } }) {
     }
     if (
       tripData?.status == "Checking payment" ||
-      tripData?.status == "Completed"
+      tripData?.status == "Completed" ||
+      tripData?.status == "Deposit paid"
     ) {
       setOnDisable(true);
     }
@@ -120,12 +121,47 @@ export default function Payment({ params }: { params: { tripId: string } }) {
   const onViewTripClick = () => {
     router.replace(`/user/trip/${tripData?.requirement_id}`);
   };
+  
+
+  const onDownLoadClick = async () => {
+    const html2pdf = await require("html2pdf.js");
+    const element = document.querySelector("#invoice");
+
+    // Define options with higher scale and image adjustments
+    const options = {
+        margin: 20,
+        filename: "invoice.pdf",
+        jsPDF: {
+            unit: 'pt',
+            format: 'a3',
+            orientation: 'landscape'
+        },
+        html2canvas: {
+            scale: 3,  // Increase scale to improve quality
+            useCORS: true, // Ensures images from other domains are rendered
+            
+        },
+        image: { type: 'jpeg', quality: 1 },
+        pagebreak: { mode: ['css', 'legacy'] }
+    };
+
+    // Generate PDF with custom font and image adjustments
+    html2pdf()
+        .set(options)
+        .from(element)
+        .toPdf()
+        .get('pdf')
+        .then((pdf:any) => {
+            pdf.setFontSize(15);  // Set desired font size
+        })
+        .save();
+};
 
   return (
     <div>
       <div className="flex flex-row gap-6">
         <div className="flex basis w-7/12 items-center">
-          <Card className="w-full h-fit">
+          <Card className="w-full h-fit" id="invoice">
             <CardHeader>
               <CardTitle>Invoice</CardTitle>
             </CardHeader>
@@ -179,9 +215,9 @@ export default function Payment({ params }: { params: { tripId: string } }) {
                       Payment Status:{" "}
                     </span>
                     {invoiceData?.pay_check_deposit ? (
-                      <Badge variant={"outline"}>Paid</Badge>
+                      <Badge variant={"outline"} className="text-[12px]">Paid</Badge>
                     ) : (
-                      <Badge variant={"destructive"}>Unpaid</Badge>
+                      <Badge variant={"destructive"} className="text-[12px]">Unpaid</Badge>
                     )}
                   </div>
                 </CardContent>
@@ -235,9 +271,9 @@ export default function Payment({ params }: { params: { tripId: string } }) {
                       Payment Status:{" "}
                     </span>
                     {invoiceData?.pay_check_remaining ? (
-                      <Badge variant={"outline"}>Paid</Badge>
+                      <Badge variant={"outline"} className="text-[12px]">Paid</Badge>
                     ) : (
-                      <Badge variant={"destructive"}>Unpaid</Badge>
+                      <Badge variant={"destructive"} className="text-[12px]">Unpaid</Badge>
                     )}
                   </div>
                 </CardContent>
@@ -246,7 +282,14 @@ export default function Payment({ params }: { params: { tripId: string } }) {
                 *Note: The customer must pay the deposit before pay the
                 remaining on the trip start date.
               </Label>
-              <Button onClick={onViewTripClick} className="w-full m-3">View Your Trip Detail</Button>
+              <div className="grid grid-cols-2 gap-2">
+                <Button onClick={onViewTripClick} className="my-2">
+                  View Your Trip Detail
+                </Button>
+                <Button onClick={onDownLoadClick} className="my-2" variant={'outline'}>
+                  Download Invoice
+                </Button>
+              </div>
             </CardContent>
           </Card>
         </div>
@@ -357,7 +400,6 @@ export default function Payment({ params }: { params: { tripId: string } }) {
           </Card>
         </div>
       </div>
-      
     </div>
   );
 }

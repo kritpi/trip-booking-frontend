@@ -18,6 +18,7 @@ export const createUser = async (newUser: UserRegister) => {
     console.log(data);
   } catch (error) {
     console.log(error);
+    alert("Email is used")
   }
 }
 

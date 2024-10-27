@@ -38,7 +38,7 @@ export default function LogIn() {
     })
       .then((res) => {
         if (res?.ok === true) {
-          router.replace("/");
+          router.replace("/user/profile");
           console.log("Successfully logged in");
           console.log(sessionStorage);
         } else {

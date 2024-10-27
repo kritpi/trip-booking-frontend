@@ -13,7 +13,7 @@ export const signUpSchema = z
     phoneNumber: z
       .string()
       .trim()
-      .min(10, "*Phone number must be at least 10 characters"),
+      .min(10, "*Phone number must be at least 10 characters").max(10, "*Phone number cannot be more than 10 characters"),
     birthDate: z.date({ required_error: "*A date of birth is required" }),
     password: z.string().min(1, "*Password cannot be blank"),
     confirmPassword: z.string(),
@@ -102,14 +102,19 @@ export const editProfileSchema = z.object({
   name: z.string().trim().min(1, "*Name cannot be blank"),
   lastName: z.string().trim().min(1, "*Last name cannot be blank"),
   phoneNumber: z
-    .string()
-    .trim()
-    .min(10, "*Phone number must be at least 10 characters"),
+      .string()
+      .trim()
+      .min(10, "*Phone number must be at least 10 characters").max(10, "*Phone number cannot be more than 10 characters"),
 })
 export type TEditProfileSchema = z.infer<typeof editProfileSchema>
 
 export const paymentSchema = z.object({
-  price: z.string().trim().min(1, "Price cannot be blank"),
+  price: z.string().trim().min(1, "Price cannot be blank").refine((val) => {
+    const parsed = parseInt(val, 10);
+    return !isNaN(parsed) && parsed >= 0;
+  }, {
+    message: "Price must be a number and not less than 0",
+  }),
   payDateTime: z.date({ required_error: "Payment date is required" }),
 });
 export type TPaymentSchema = z.infer<typeof paymentSchema>;

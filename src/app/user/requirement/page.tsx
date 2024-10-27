@@ -93,7 +93,7 @@ export default function Requirement() {
       };
       console.log(requirementData);
       createRequirement(requirementData);
-      router.replace("/");
+      router.replace("/user/profile");
     }
   };
 
