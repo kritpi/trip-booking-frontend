@@ -58,7 +58,8 @@ export const Navbar = () => {
                   My Account
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuGroup>
+                {session?.user ? (
+                  <DropdownMenuGroup>
                   <DropdownMenuItem>
                     <Link href={"/user/profile"}>
                       <span className="text-[15px]">Profile</span>
@@ -66,6 +67,8 @@ export const Navbar = () => {
                     </Link>
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
+                ) : null}
+                
 
                 <DropdownMenuSeparator />
                 {session?.user ? (
