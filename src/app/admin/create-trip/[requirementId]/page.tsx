@@ -13,7 +13,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useState, useEffect } from "react";
 import Requirement from "@/interface/requirement";
 import { getRequirementById } from "@/api/requirement";
-import { getTripFromRequirementId, editTrip } from "@/api/trip";
+import { getTripFromRequirementId, editTrip, patchTrip } from "@/api/trip";
 import {
   createLocation,
   deleteLocationById,
@@ -163,6 +163,7 @@ export default function CreateTrip({
     try {
       // console.log(editedTrip.uuid);
       editedTrip.status = "Wait for confirm"
+      editedTrip.comment = ""
       console.log(editedTrip);
       // console.log(tripData?.id);
       editTrip(tripData?.id, editedTrip);
@@ -181,6 +182,11 @@ export default function CreateTrip({
     console.log(newLocation);
     console.log(tripLocations);
     //todo add newLocation to server
+    const patchedTrip = {
+      status: "Wait for confirm",
+      comment: ""
+    };    
+    patchTrip(tripData?.id, patchedTrip)
     resetLocationForm();
     alert("Location Added");
   };
@@ -190,6 +196,11 @@ export default function CreateTrip({
 
     //Delete from frontend
     setTripLocations(tripLocations.filter((item) => item.id !== locationId));
+    const patchedTrip = {
+      status: "Wait for confirm",
+      comment: ""
+    };
+    patchTrip(tripData?.id, patchedTrip)
     //Delete from server
     deleteLocationById(locationId);
     // todo
@@ -261,7 +272,7 @@ export default function CreateTrip({
             </div>
             <div>
               <dt className="font-semibold">Created At:</dt>
-              <dd>{new Date(requirement.requirement.end_date_time).toDateString()}{" "}
+              <dd>{new Date(requirement.requirement.create_at).toDateString()}{" "}
                 |{" "}
                 {new Date(
                   requirement.requirement.end_date_time

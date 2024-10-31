@@ -76,10 +76,10 @@ export default function SignUp() {
       console.error("Error creating user:", error);
       if (error instanceof Error && error.message.includes("Email is used")) {        
         alert("Email is used");
-        
+        router.replace("/signup");
       }
     } finally{
-      router.replace("/signup");
+      // router.replace("/signup");
       form.reset();
     }
   };

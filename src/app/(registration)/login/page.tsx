@@ -44,10 +44,18 @@ export default function LogIn() {
         } else {
           console.log("Cannot log in");
           form.reset({ ...form.getValues(), password: "" });
+            form.setError("email", {
+            type: "manual",
+            message: "Invalid email or password",
+            });
+            form.setError("password", {
+            type: "manual",
+            message: "Invalid email or password",
+            });
         }
       })
       .catch(() => {
-        console.log("Login failed");
+        console.log("Login failed");     
       });
   };
 
