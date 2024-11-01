@@ -1,9 +1,14 @@
 "use client";
 
-import { z } from "zod";
 import { useForm } from "react-hook-form";
-import Link from "next/link"
 import { zodResolver } from "@hookform/resolvers/zod";
+import Link from "next/link";
+import { redirect, useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
+import { createUser } from "@/api/user";
+import UserRegister from "@/interface/userRegister";
+import { UserGender } from "@/enum/UserGender";
+
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import {
@@ -20,7 +25,7 @@ import {
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { add, format } from "date-fns";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Form,
@@ -30,29 +35,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-
-// sign-up validation schema
-const signUpSchema = z
-  .object({
-    username: z.string().trim().min(1, "*Username cannot be blank"),
-    name: z.string().trim().min(1, "*Name cannot be blank"),
-    lastName: z.string().trim().min(1, "*Last name cannot be blank"),
-    gender: z.enum(["Male", "Female", "Etc."]),
-    email: z.string().trim().email("*Wrong email format"),
-    phoneNumber: z
-      .string()
-      .trim()
-      .min(10, "*Phone number must be at least 10 characters"),
-    birthDate: z.date({ required_error: "*A date of birth is required" }),
-    password: z.string().min(8, "*Password must be at least 8 characters"),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    message: "*Passwords must match",
-    path: ["confirmPassword"],
-  });
-
-type TSignUpSchema = z.infer<typeof signUpSchema>;
+import { signUpSchema, TSignUpSchema } from "@/types/zodSchema";
 
 export default function SignUp() {
   const form = useForm<TSignUpSchema>({
@@ -69,9 +52,42 @@ export default function SignUp() {
     },
   });
 
-  const onSignUpSubmit = async (data: TSignUpSchema) => {
-    console.log(JSON.stringify(data));
-    //backend connection
+  const { setValue } = form;
+  const router = useRouter();
+  const onRegisterSubmit = async (data: TSignUpSchema) => {
+    const newUser: UserRegister = {
+      name: data.name,
+      lastName: data.lastName,
+      gender: data.gender as UserGender,
+      email: data.email,
+      phoneNumber: data.phoneNumber,
+      birthDate: data.birthDate,
+      username: data.username,
+      password: data.password,
+    };
+    console.log(newUser);
+    
+    try {
+      createUser(newUser);    
+      console.log("no error");
+      router.replace("/login");
+      
+    } catch (error) {
+      console.error("Error creating user:", error);
+      if (error instanceof Error && error.message.includes("Email is used")) {        
+        alert("Email is used");
+        router.replace("/signup");
+      }
+    } finally{
+      // router.replace("/signup");
+      form.reset();
+    }
+  };
+  const handleStartDateChange = (date: Date | undefined) => {
+    if (date) {
+      setValue('birthDate', date);
+      
+    }
   };
 
   return (
@@ -79,7 +95,7 @@ export default function SignUp() {
       <h1 className="text-3xl font-bold mb-6">Sign Up</h1>
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(onSignUpSubmit)}
+          onSubmit={form.handleSubmit(onRegisterSubmit)}
           className="space-y-6"
         >
           <div className="grid grid-cols-2 gap-6">
@@ -105,7 +121,7 @@ export default function SignUp() {
                   <FormControl>
                     <Input placeholder="Last Name" {...field} />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -127,10 +143,10 @@ export default function SignUp() {
                     <SelectContent>
                       <SelectItem value="Male">Male</SelectItem>
                       <SelectItem value="Female">Female</SelectItem>
-                      <SelectItem value="Etc.">Etc.</SelectItem>
+                      <SelectItem value="Other">Etc.</SelectItem>
                     </SelectContent>
                   </Select>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -143,7 +159,7 @@ export default function SignUp() {
                   <FormControl>
                     <Input type="email" placeholder="Email" {...field} />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -154,9 +170,9 @@ export default function SignUp() {
                 <FormItem>
                   <FormLabel className="pl-2 text-base">Phone Number</FormLabel>
                   <FormControl>
-                    <Input placeholder="Phone Number" {...field} />
+                    <Input placeholder="Phone Number" {...field} type="tel" pattern="[0-9]*"/>
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -164,41 +180,45 @@ export default function SignUp() {
               control={form.control}
               name="birthDate"
               render={({ field }) => (
-                <FormItem className="">
+                <FormItem>
                   <FormLabel className="pl-2 text-base">Birth Date</FormLabel>
                   <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-[300px] pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, "PPP")
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                          date > new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                      />
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-center text-[14px] font-normal",
+                        !field.value && "text-muted-foreground"
+                      )}
+                      aria-label="Select start date and time"
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {field.value ? (
+                        format(field.value, "PPP")
+                      ) : (
+                        <span>Pick a date</span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      captionLayout="dropdown-buttons"
+                      selected={field.value}
+                      onSelect={(date) => {
+                      console.log(date);
+
+                      handleStartDateChange(date);
+                      }}
+                      fromYear={1900}
+                      toYear={new Date().getFullYear()}
+                      initialFocus
+                    />
+                    
                     </PopoverContent>
-                  </Popover>
-                  <FormMessage className="pl-2"/>
+                </Popover>
                 </FormItem>
+                
               )}
             />
             <FormField
@@ -210,7 +230,7 @@ export default function SignUp() {
                   <FormControl>
                     <Input placeholder="Username" {...field} />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -223,7 +243,7 @@ export default function SignUp() {
                   <FormControl>
                     <Input type="password" placeholder="Password" {...field} />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -232,7 +252,9 @@ export default function SignUp() {
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2 text-base">Confirm Password</FormLabel>
+                  <FormLabel className="pl-2 text-base">
+                    Confirm Password
+                  </FormLabel>
                   <FormControl>
                     <Input
                       type="password"
@@ -240,19 +262,24 @@ export default function SignUp() {
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
             <div>
-            <FormLabel className="pl-2 text-base">Confirm Creating Your New Account?</FormLabel>
+              <FormLabel className="pl-2 text-base">
+                Confirm Creating Your New Account?
+              </FormLabel>
               <div className="grid grid-cols-2 gap-3">
-                <Button type="submit" disabled={form.formState.isSubmitting} className="mt-2">
+                <Button
+                  type="submit"
+                  disabled={form.formState.isSubmitting}
+                  className="mt-2"
+                >
                   Create Account
                 </Button>
                 <Button asChild variant={"outline"} className="mt-2">
-                  <Link href={"/"}>Cancle</Link>
-                  
+                  <Link href={"/login"}>Cancel</Link>
                 </Button>
               </div>
             </div>

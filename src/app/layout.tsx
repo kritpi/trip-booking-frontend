@@ -1,6 +1,9 @@
+// 'use client'
 import type { Metadata } from "next";
 import { Noto_Sans_Thai } from "next/font/google";
-import { Providers } from "../lib/providers";
+import NextAuthProvider from "@/provider/NextAuthProvider";
+// import { SessionProvider } from "next-auth/react";
+import { Providers } from "../provider/NextUiProviders";
 import "./globals.css";
 import { Navbar } from "@/components/components/navbar";
 
@@ -11,7 +14,7 @@ const notoSanThai = Noto_Sans_Thai({
   subsets: ["latin", "latin-ext", "thai"],
 });
 
-export const metadata: Metadata = {
+export const metadata: Metadata = { 
   title: "Trip-Booking",
   description: "Tour Booking Web Application",
 };
@@ -24,12 +27,14 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={notoSanThai.className}>
-        <Providers>
-          <Navbar></Navbar> 
-          {/* <div className="max-w-screen-xl flex flex-wrap content-center mx-auto p-4">{children}</div> */}
-          {/* <div className=" container mr-[8rem] my-[2rem]">{children}</div> */}
-          <div className="grid mx-[15rem] my-[3rem]">{children}</div>
-        </Providers>
+        <NextAuthProvider>
+          {/* <SessionProvider> */}
+            <Providers>
+              <Navbar></Navbar>
+              <div className="grid mx-[15rem] my-[3rem]">{children}</div>
+            </Providers>
+          {/* </SessionProvider> */}
+        </NextAuthProvider>
       </body>
     </html>
   );

@@ -1,9 +1,11 @@
 "use client";
-import { z } from "zod";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { signIn, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   Form,
   FormControl,
@@ -12,37 +14,49 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator"
-import Link from "next/link"
-
-
-//log-in validation
-const logInSchema = z
-  .object({
-    username: z.string().min(1, "Username cannot be blank"),
-    password: z.string().min(8, "Password cannot be blank"),
-  })
-  .refine(
-    (data) =>
-      data.password === data.password && data.username === data.username,
-    {
-      message: "Username or password is incorrect",
-    }
-  );
-type TLogInSchema = z.infer<typeof logInSchema>;
+import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+import { loginUser } from "@/api/user";
+import { logInSchema, TLogInSchema } from "@/types/zodSchema";
 
 export default function LogIn() {
   const form = useForm<TLogInSchema>({
     resolver: zodResolver(logInSchema),
     defaultValues: {
-      username: "",
+      email: "",
       password: "",
-    },
+    }, //todo: reset the form
   });
 
+  const router = useRouter();
+
   const onLogInSubmit = async (data: TLogInSchema) => {
-    console.log(JSON.stringify(data));
-    //backend connection
+    await signIn("credentials", {
+      email: data.email,
+      password: data.password,
+      redirect: false,
+    })
+      .then((res) => {
+        if (res?.ok === true) {
+          router.replace("/user/profile");
+          console.log("Successfully logged in");
+          console.log(sessionStorage);
+        } else {
+          console.log("Cannot log in");
+          form.reset({ ...form.getValues(), password: "" });
+            form.setError("email", {
+            type: "manual",
+            message: "Invalid email or password",
+            });
+            form.setError("password", {
+            type: "manual",
+            message: "Invalid email or password",
+            });
+        }
+      })
+      .catch(() => {
+        console.log("Login failed");     
+      });
   };
 
   return (
@@ -53,18 +67,18 @@ export default function LogIn() {
           <div className="grid grid-rows-3 gap-6">
             <FormField
               control={form.control}
-              name="username"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="pl-2 text-base">Username</FormLabel>
+                  <FormLabel className="pl-2 text-base">Email</FormLabel>
                   <FormControl>
                     <Input
                       {...field}
-                      placeholder="Username"
+                      placeholder="Email"
                       className="w-[300px]"
                     />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
@@ -82,11 +96,13 @@ export default function LogIn() {
                       className="w-[300px]"
                     />
                   </FormControl>
-                  <FormMessage className="pl-2"/>
+                  <FormMessage className="pl-2" />
                 </FormItem>
               )}
             />
-            <Button type="submit" className="w-[300px]">Log In</Button>
+            <Button type="submit" className="w-[300px]">
+              Log In
+            </Button>
           </div>
         </form>
       </Form>
@@ -94,7 +110,9 @@ export default function LogIn() {
       <div className="mt-3">
         <span>Doesn't have an account yet? | </span>
         <span>
-          <Link href={"sign-up"} className="hover: underline">Sign Up</Link>
+          <Link href={"signup"} className="hover: underline">
+            Sign Up
+          </Link>
         </span>
       </div>
     </div>
